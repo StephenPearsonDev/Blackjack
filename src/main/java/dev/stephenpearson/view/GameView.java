@@ -9,6 +9,19 @@ public class GameView extends JFrame {
 	public GameView() {
 		
 		gameWindow = new GameWindow();
+		
+		add(gameWindow);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setResizable(false);
+		
+		setVisible(true);
+		pack();
+		setLocationRelativeTo(null);
+		
+	}
+	
+	public void render() {
+		gameWindow.render();
 	}
 	
 	public GameWindow getGameWindow() {

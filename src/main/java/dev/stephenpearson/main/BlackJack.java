@@ -1,8 +1,9 @@
-package dev.stephenpearson;
+package dev.stephenpearson.main;
 
 import dev.stephenpearson.controller.GameController;
 import dev.stephenpearson.model.GameModel;
 import dev.stephenpearson.view.GameView;
+
 
 public class BlackJack implements Runnable {
 	
@@ -12,27 +13,22 @@ public class BlackJack implements Runnable {
 	private static GameView gameView;
 	
 	public BlackJack() {
-		
+		initControllers();
+	}
+	
+	public void initControllers() {
+		System.out.println("inity");
 		gameModel = new GameModel();
 		gameView = new GameView();
 		gameController = new GameController(gameModel, gameView);
-		
-		gameThread = new Thread(this);
+		gameThread = new Thread(gameController);
 		gameThread.start();
-		
 	}
-	
 	
 
 	@Override
 	public void run() {
 		
-
-		for(;;) {
-			
-			
-			
-		}
 		
 	}
 
