@@ -13,11 +13,12 @@ public class BlackJack implements Runnable {
 	private static GameView gameView;
 	
 	public BlackJack() {
+		
 		initControllers();
 	}
 	
 	public void initControllers() {
-		System.out.println("inity");
+	
 		gameModel = new GameModel();
 		gameView = new GameView();
 		gameController = new GameController(gameModel, gameView);

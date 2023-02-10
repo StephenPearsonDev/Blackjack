@@ -6,11 +6,15 @@ import java.util.List;
 
 public class Deck {
 	
-	List<Card> deck = new ArrayList<>();	
+	List<Card> cardsInDeck = new ArrayList<>();	
 	
 	public Deck() {
 		buildStandardDeck();
 		shuffleDeck();
+	}
+	
+	public List<Card> getCardsInDeck() {
+		return cardsInDeck;
 	}
 	
 	public void buildStandardDeck() {
@@ -18,21 +22,20 @@ public class Deck {
 		for(Suit s : Suit.values()) {				
 			for(Rank r : Rank.values()) {
 				if(r != Rank.ACE_ONE) {
-					deck.add(new Card(s, r));
-
+					cardsInDeck.add(new Card(s, r));
 				}
 			}
 		}
 	}
 	
 	public void shuffleDeck() {
-		Collections.shuffle(deck);
-		
-		for(Card c : deck) {
+		Collections.shuffle(cardsInDeck);
+	}
+	
+	public void printDeckToConsole() {
+		for(Card c : cardsInDeck) {
 			System.out.println(c.getCardString());
-		
 		}
-		
 	}
 	
 	public Deck getDeck() {

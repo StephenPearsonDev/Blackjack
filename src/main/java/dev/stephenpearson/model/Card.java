@@ -11,8 +11,8 @@ public class Card {
 		suit = s;
 		rank = r;
 		faceValue = rank.getRankValue();
-		//cardString =  rank.name().charAt(0) +  rank.name().substring(1).toLowerCase() + " of " + suit.name().toLowerCase();
-		cardString =  rank.name()+ " of " + suit.name();
+		cardString =  rank.name().charAt(0) +  rank.name().substring(1).toLowerCase() + " of " + suit.name().toLowerCase();
+		//cardString =  rank.name()+ " of " + suit.name();
 	}
 	
 	
