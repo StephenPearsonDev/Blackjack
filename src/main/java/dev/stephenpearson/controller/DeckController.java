@@ -1,6 +1,6 @@
 package dev.stephenpearson.controller;
 
-import java.util.ArrayList;
+import java.awt.Point;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,20 +8,27 @@ import java.util.Stack;
 
 import dev.stephenpearson.model.Card;
 import dev.stephenpearson.model.Deck;
-import dev.stephenpearson.model.Rank;
-import dev.stephenpearson.model.Suit;
+import dev.stephenpearson.model.GameZone;
 
 public class DeckController {
 	
 	Map<Integer, Deck> decks;
 	List<Card> gameStack = new Stack<>();
 	
-	public DeckController() {
+	public DeckController(GameZone deckZone) {
 		
 		
 		buildDecks(4);
 		buildGameStack();
+		setCardPoints(deckZone.getZoneCenterPoint());
 	
+	}
+	
+	public void setCardPoints(Point deckZoneCenterPoint) {
+		for(Card c : gameStack) {
+			
+			c.setInitPoints(deckZoneCenterPoint);
+		}
 	}
 	
 	public void buildGameStack() {
@@ -54,6 +61,10 @@ public class DeckController {
 	public Map<Integer, Deck> getDecks() {
 
 		return decks;
+	}
+	
+	public List<Card> getGameStack() {
+		return gameStack;
 	}
 
 }

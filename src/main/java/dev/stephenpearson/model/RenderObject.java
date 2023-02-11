@@ -1,7 +1,10 @@
 package dev.stephenpearson.model;
 
-public interface RenderObject<T> {
+import java.awt.Graphics;
+
+public interface RenderObject {
 	
-	
+	public void draw(Graphics g);
+
 
 }

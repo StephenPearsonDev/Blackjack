@@ -2,21 +2,22 @@ package dev.stephenpearson.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RadialGradientPaint;
-import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
 
+import dev.stephenpearson.model.GameZone;
 import dev.stephenpearson.model.RenderObject;
+
 
 public class GameWindow extends JPanel{
 	
 	private static final int PANEL_WIDTH = 600;
 	private static final int PANEL_HEIGHT = 800;
+	
+	private List<RenderObject> renderObjects = new ArrayList<>();
 
 	
 	public GameWindow() {
@@ -24,8 +25,20 @@ public class GameWindow extends JPanel{
 	}
 	
 	public void render() {
-	
 		repaint();
+	}
+	
+	public void addRenderObject(RenderObject r) {
+
+	}
+	
+	public void passRenderObjects(List<RenderObject> r) {
+
+		for(RenderObject renderObjectToAdd : r) {
+			if(!renderObjects.contains(renderObjectToAdd)) {
+				renderObjects.add(renderObjectToAdd);
+			}
+		}
 	}
 	
 	
@@ -33,7 +46,6 @@ public class GameWindow extends JPanel{
 		super.paintComponent(g);
 		g.setColor(new Color(78, 115, 96));
 		//Graphics2D g2d = (Graphics2D) g;
-		
 		
 		//Color[] colors = {new Color(78, 115, 96), new Color(36, 41, 39)};
 		//Point2D point = new Point2D.Float(300,400);
@@ -44,6 +56,20 @@ public class GameWindow extends JPanel{
 		//g.fillRect(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
 		g.fillRect(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
 		
+		//card color
+//		g.setColor(new Color(233, 237, 245));
+		
+		
+		//drop shadow color
+//		g.setColor(new Color(34, 35, 36));
+		
+		for(RenderObject r : renderObjects) {
+			
+			r.draw(g); 
+			
+		}
 	}
+
+	
 
 }

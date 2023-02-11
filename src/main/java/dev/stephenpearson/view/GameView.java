@@ -2,6 +2,8 @@ package dev.stephenpearson.view;
 
 import javax.swing.JFrame;
 
+import dev.stephenpearson.model.RenderObject;
+
 public class GameView extends JFrame {
 	
 	private static GameWindow gameWindow;
@@ -21,7 +23,7 @@ public class GameView extends JFrame {
 	}
 	
 	public void render() {
-		gameWindow.render();
+	
 	}
 	
 	public GameWindow getGameWindow() {
