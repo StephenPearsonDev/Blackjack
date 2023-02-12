@@ -56,13 +56,13 @@ public class GameZone implements RenderObject {
 	
 	enum Zone {
 		
-		DEALER_HAND("dealerHand",0,0,400,200, new Color(86, 111, 119)),
-		PLAYER_HAND("playerHand",0,600,400,200, new Color(238, 138, 118)),
-		DECK("deckZone",400,0,200,200, new Color(225, 129, 73)),
-		BURNT_CARDS("burntCards",400,200,200,200, new Color(172, 218, 106)),
-		BET_STACK("betStack",400,400,200,200, new Color(223, 223, 133)),
-		CHIP_STACK("chipStack",400,600,200,200, new Color(140, 186, 181)),
-		GAME_ZONE("gameZone",0,200,400,400,new Color(153, 153, 255));
+		DEALER_HAND("dealerHandZone",0,0,600,200, new Color(86, 111, 119)),
+		PLAYER_HAND("playerHandZone",0,600,600,200, new Color(238, 138, 118)),
+		DECK("deckZone",600,0,200,200, new Color(225, 129, 73)),
+		BURNT_CARDS("burntCards",600,200,200,200, new Color(172, 218, 106)),
+		BET_STACK("betStack",600,400,200,200, new Color(223, 223, 133)),
+		CHIP_STACK("chipStack",600,600,200,200, new Color(140, 186, 181)),
+		GAME_ZONE("gameZone",0,200,600,400,new Color(153, 153, 255));
 		
 		private String zoneName;
 		private int x, y, w, h;

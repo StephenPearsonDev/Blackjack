@@ -14,8 +14,11 @@ public class Card implements RenderObject {
 	private int faceValue;
 	private Rectangle cardBounds;
 	private Color cardColor = new Color(234, 234, 189);
+	private Color cardShadowColor = new Color(128,128,128);
 	private Point centerPoint;
+	private Point cornerPoint;
 	private Dimension cardDimensions;
+	private boolean topCard = false;
 	
 	
 	public Card(Suit s, Rank r) {
@@ -24,13 +27,14 @@ public class Card implements RenderObject {
 		faceValue = rank.getRankValue();
 		cardString =  rank.name().charAt(0) +  rank.name().substring(1).toLowerCase() + " of " + suit.name().toLowerCase();
 		//cardString =  rank.name()+ " of " + suit.name();
-		cardDimensions = new Dimension(80,120);
+		cardDimensions = new Dimension(100,140);
 		
 	}
 	
 	public void setInitPoints(Point deckZoneCenterPoint) {
 		cardBounds = new Rectangle(deckZoneCenterPoint.x - cardDimensions.width /2, deckZoneCenterPoint.y - cardDimensions.height /2, cardDimensions.width, cardDimensions.height);
-		centerPoint = new Point(cardBounds.x + cardBounds.width/2 - 10, cardBounds.y + cardBounds.height /2 -10);
+		centerPoint = new Point(cardBounds.x + cardBounds.width/2 - 15, cardBounds.y + cardBounds.height /2 - 15);
+		cornerPoint = new Point(cardBounds.x, cardBounds.y);
 	}
 	
 	
@@ -44,6 +48,18 @@ public class Card implements RenderObject {
 	
 	public String getCardString() {
 		return cardString;
+	}
+	
+	public Point getCornerPoint() {
+		return cornerPoint;
+	}
+	
+	public void slidePoint(Point p) {
+		
+		cornerPoint.setLocation(p);
+		cardBounds.setLocation(cornerPoint);
+		centerPoint.setLocation(cornerPoint.x + cardBounds.width/2 - 15, cornerPoint.y + cardBounds.height /2 - 15);
+		
 	}
 	
 	public void swapAceValue() {
@@ -61,14 +77,29 @@ public class Card implements RenderObject {
 	public Suit getSuit() {
 		return suit;
 	}
+	
 
 
 	@Override
 	public void draw(Graphics g) {
+		
+		g.setColor(cardShadowColor);
+		g.fillRoundRect(cardBounds.x-3, cardBounds.y+5, cardBounds.width, cardBounds.height, 20 ,20);
 		g.setColor(cardColor);
-		g.fillRoundRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height, 20,20);
-		g.setColor(Color.RED);
-		g.fillOval(centerPoint.x, centerPoint.y, 20, 20);
+		g.fillRoundRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height, 20 ,20);
+		
+		
+		
+		
+//		draw bounding box for debugging cardBound position
+//		g.setColor(Color.GREEN);
+//		g.fillRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height);
+//		g.setColor(Color.RED);
+//		g.fillOval(centerPoint.x, centerPoint.y, 30, 30);
+	}
+	
+	public Rectangle getCardBounds() {
+		return cardBounds;
 	}
 
 }

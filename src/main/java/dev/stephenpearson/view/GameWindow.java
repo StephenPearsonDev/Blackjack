@@ -14,10 +14,10 @@ import dev.stephenpearson.model.RenderObject;
 
 public class GameWindow extends JPanel{
 	
-	private static final int PANEL_WIDTH = 600;
+	private static final int PANEL_WIDTH = 800;
 	private static final int PANEL_HEIGHT = 800;
 	
-	private List<RenderObject> renderObjects = new ArrayList<>();
+	private static List<RenderObject> renderObjects = new ArrayList<>();
 
 	
 	public GameWindow() {
@@ -29,7 +29,9 @@ public class GameWindow extends JPanel{
 	}
 	
 	public void addRenderObject(RenderObject r) {
-
+		if(!renderObjects.contains(r)) {
+			renderObjects.add(r);
+		}
 	}
 	
 	public void passRenderObjects(List<RenderObject> r) {
@@ -62,11 +64,15 @@ public class GameWindow extends JPanel{
 		
 		//drop shadow color
 //		g.setColor(new Color(34, 35, 36));
-		
 		for(RenderObject r : renderObjects) {
 			
-			r.draw(g); 
 			
+			//turn off printing gamezones
+//			if(r.getClass() != GameZone.class) {
+//				r.draw(g); 
+//			}
+			
+			r.draw(g); 
 		}
 	}
 

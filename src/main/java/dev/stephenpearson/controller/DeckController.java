@@ -12,8 +12,9 @@ import dev.stephenpearson.model.GameZone;
 
 public class DeckController {
 	
-	Map<Integer, Deck> decks;
-	List<Card> gameStack = new Stack<>();
+	private Map<Integer, Deck> decks;
+	private Stack<Card> gameStack = new Stack<>();
+	private Card topCard;
 	
 	public DeckController(GameZone deckZone) {
 		
@@ -21,6 +22,8 @@ public class DeckController {
 		buildDecks(4);
 		buildGameStack();
 		setCardPoints(deckZone.getZoneCenterPoint());
+		topCard = gameStack.pop();
+		
 	
 	}
 	
@@ -37,6 +40,14 @@ public class DeckController {
 		
 		
 	}
+	
+	public void dealCard() {
+		gameStack.pop();
+		if(!gameStack.empty()) {
+			topCard = gameStack.peek();
+		}
+	}
+	
 	
 	public void printGameStackToConsole() {
 		
@@ -63,8 +74,17 @@ public class DeckController {
 		return decks;
 	}
 	
-	public List<Card> getGameStack() {
+	public Stack<Card> getGameStack() {
 		return gameStack;
+	}
+	
+	public Card getTopStackCard() {
+		topCard = gameStack.pop();
+		return topCard;
+	}
+	
+	public Card lookAtTopCard() {
+		return topCard;
 	}
 
 }

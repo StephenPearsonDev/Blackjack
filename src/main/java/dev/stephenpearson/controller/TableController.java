@@ -3,6 +3,7 @@ package dev.stephenpearson.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.stephenpearson.model.DealtCardZone;
 import dev.stephenpearson.model.GameZone;
 
 public class TableController {
@@ -30,11 +31,11 @@ public class TableController {
 		GameZone gameZone = new GameZone("gameZone");
 		gameZones.put(gameZone.getZoneName(), gameZone);
 	
-		GameZone dealerHand = new GameZone("dealerHand");
-		gameZones.put(dealerHand.getZoneName(), dealerHand);
-		
-		GameZone playerHand = new GameZone("playerHand");
-		gameZones.put(playerHand.getZoneName(), playerHand);
+//		GameZone dealerHand = new GameZone("dealerHandZone");
+//		gameZones.put(dealerHand.getZoneName(), dealerHand);
+//		
+//		GameZone playerHand = new GameZone("playerHandZone");
+//		gameZones.put(playerHand.getZoneName(), playerHand);
 		
 		
 		GameZone chipStack = new GameZone("chipStack");
@@ -42,6 +43,12 @@ public class TableController {
 		
 		GameZone betStack = new GameZone("betStack");
 		gameZones.put(betStack.getZoneName(), betStack);
+		
+		GameZone dealerHandZone = new DealtCardZone("dealerHandZone");
+		gameZones.put(dealerHandZone.getZoneName(), dealerHandZone);
+		
+		GameZone playerHandZone = new DealtCardZone("playerHandZone");
+		gameZones.put(playerHandZone.getZoneName(), playerHandZone);
 	}
 	
 	public Map<String, GameZone> getGameZones() {
@@ -50,8 +57,12 @@ public class TableController {
 	
 	public GameZone getGameZone(String targetZone) {
 		
-		
 		return gameZones.get(targetZone);
+	}
+	
+	public DealtCardZone getDealtCardZone(String targetZone) {
+		
+		return (DealtCardZone) gameZones.get(targetZone);
 	}
 	
 	public DeckController getDeckController() {
