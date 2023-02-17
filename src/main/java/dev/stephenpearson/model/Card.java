@@ -13,15 +13,21 @@ public class Card implements RenderObject {
 	private String cardString;
 	private int faceValue;
 	private Rectangle cardBounds;
-	private Color cardColor = new Color(234, 234, 189);
+	private Color cardFrontColor = new Color(234, 234, 189);
+	private static int cardsInMemory = 0;
+	
+	private Color cardBackColor = new Color(21, 22, 100);
 	private Color cardShadowColor = new Color(128,128,128);
 	private Point centerPoint;
 	private Point cornerPoint;
 	private Dimension cardDimensions;
 	private boolean topCard = false;
+	private boolean faceDown = true;
+	
 	
 	
 	public Card(Suit s, Rank r) {
+		cardsInMemory++;
 		suit = s;
 		rank = r;
 		faceValue = rank.getRankValue();
@@ -83,10 +89,18 @@ public class Card implements RenderObject {
 	@Override
 	public void draw(Graphics g) {
 		
-		g.setColor(cardShadowColor);
-		g.fillRoundRect(cardBounds.x-3, cardBounds.y+5, cardBounds.width, cardBounds.height, 20 ,20);
-		g.setColor(cardColor);
-		g.fillRoundRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height, 20 ,20);
+		if(faceDown) {
+			g.setColor(cardShadowColor);
+			g.fillRoundRect(cardBounds.x-3, cardBounds.y+5, cardBounds.width, cardBounds.height, 20 ,20);
+			g.setColor(cardBackColor);
+			g.fillRoundRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height, 20 ,20);
+		} else {
+			g.setColor(cardShadowColor);
+			g.fillRoundRect(cardBounds.x-3, cardBounds.y+5, cardBounds.width, cardBounds.height, 20 ,20);
+			g.setColor(cardFrontColor);
+			g.fillRoundRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height, 20 ,20);
+		}
+	
 		
 		
 		
@@ -100,6 +114,19 @@ public class Card implements RenderObject {
 	
 	public Rectangle getCardBounds() {
 		return cardBounds;
+	}
+	
+	public Card setCardFaceDown(boolean b) {
+		faceDown = b;
+		return this;
+	}
+	
+	public boolean isFaceDown() {
+		return faceDown;
+	}
+	
+	public int getCardsInMemory() {
+		return cardsInMemory;
 	}
 
 }

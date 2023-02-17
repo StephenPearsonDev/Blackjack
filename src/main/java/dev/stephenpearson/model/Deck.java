@@ -6,9 +6,10 @@ import java.util.List;
 
 public class Deck {
 	
-	List<Card> cardsInDeck = new ArrayList<>();	
+	private List<Card> cardsInDeck;
 	
 	public Deck() {
+		cardsInDeck = new ArrayList<Card>();
 		buildStandardDeck();
 		shuffleDeck();
 	}

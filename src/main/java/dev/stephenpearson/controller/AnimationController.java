@@ -17,6 +17,8 @@ public class AnimationController implements ActionListener {
 	private GameWindow gameWindow;
 	private TableController tableController;
 	private boolean timerStopped = false;
+
+	private boolean cardAnimating = false;
 	
 	
 	
@@ -37,25 +39,30 @@ public class AnimationController implements ActionListener {
 		this.tableController = tableController;
 		timer = new Timer(1, this);
 		timerStopped = false;
-		
 	}
 	
 	
 	public void startTimer() {
 				timerStopped = false;
+				cardAnimating = true;
 				timer.start();
+				
 				
 	}
 	
 	public void animateCard(Card cardToAnimate, Point destination) {
 		
 
-		System.out.println(cardToAnimate.getCardString());
+		
 		this.cardToAnimate = cardToAnimate;
 
 		cardOrigin = cardToAnimate.getCornerPoint();
 		cardDestination = destination;
-		startTimer();
+		
+		
+				startTimer();
+			
+		
 		
 		
 		
@@ -86,21 +93,23 @@ public class AnimationController implements ActionListener {
 			gameWindow.repaint();
 	} else {
 		System.out.println("timer stopped");
+		
 		timer.stop();
+		cardAnimating = false;
 		currentTime = 0;
+	
 		timerStopped = true;
 		
 	}
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
+		anCard();
 	
-			anCard();
-			
-		
-		
-		
+	}
+	
+	public boolean isCardAnimating() {
+		return cardAnimating;
 	}
 
 }

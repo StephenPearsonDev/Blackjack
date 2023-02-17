@@ -11,6 +11,7 @@ public class TableController {
 	private static DeckController deckController;
 	private static PlayerController playerController;
 	private static Map<String, GameZone> gameZones;
+	
 	   
 	public TableController() {
 		initZones();
@@ -67,6 +68,10 @@ public class TableController {
 	
 	public DeckController getDeckController() {
 		return deckController;
+	}
+	
+	public PlayerController getPlayerController() {
+		return playerController;
 	}
 	
 	

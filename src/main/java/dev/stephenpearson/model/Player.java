@@ -1,9 +1,15 @@
 package dev.stephenpearson.model;
 
-public class Player {
+public class Player extends PlayerEntity {
+	
+	
 	
 	public Player() {
-		
+
 	}
+	
+	
+	
+	
 
 }

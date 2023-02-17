@@ -7,24 +7,44 @@ import java.util.Map;
 import java.util.Stack;
 
 import dev.stephenpearson.model.Card;
+import dev.stephenpearson.model.Dealer;
 import dev.stephenpearson.model.Deck;
 import dev.stephenpearson.model.GameZone;
+import dev.stephenpearson.model.Player;
+import dev.stephenpearson.model.PlayerEntity;
 
 public class DeckController {
 	
-	private Map<Integer, Deck> decks;
-	private Stack<Card> gameStack = new Stack<>();
+	private static Map<Integer, Deck> decks;
+	private static Stack<Card> gameStack = new Stack<>();
 	private Card topCard;
+	private PlayerController playerController;
 	
-	public DeckController(GameZone deckZone) {
-		
-		
+	public DeckController(GameZone deckZone ) {
+
 		buildDecks(4);
 		buildGameStack();
 		setCardPoints(deckZone.getZoneCenterPoint());
-		topCard = gameStack.pop();
-		
+		System.out.println("From DeckController "+ " - Cards in Memory - " + gameStack.peek().getCardsInMemory());
 	
+	}
+	
+	//The Dealer deals 1 card down to self then 1 card up to player, 1 card up to self and 1 card up to player
+	public void initGame(PlayerController playerController) {
+		this.playerController = playerController;
+		
+		((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Player"), gameStack, "up");
+		System.out.println(gameStack.size());
+		((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Dealer"), gameStack, "down");
+		System.out.println(gameStack.size());
+		((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Player"), gameStack, "up");
+		System.out.println(gameStack.size());
+		((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Dealer"), gameStack, "up");
+		System.out.println(gameStack.size());
+		
+		for(PlayerEntity p : playerController.getPlayerList()) {
+			p.getHand().printHand();
+		}
 	}
 	
 	public void setCardPoints(Point deckZoneCenterPoint) {
@@ -46,6 +66,20 @@ public class DeckController {
 		if(!gameStack.empty()) {
 			topCard = gameStack.peek();
 		}
+	}
+	
+	public void dealCardTo(PlayerEntity playerEntity, String upOrDown) {
+		
+		switch(upOrDown) {
+		case "up":
+			playerEntity.getHand().addCardToHand(gameStack.pop());
+			
+		case "down":
+			
+			playerEntity.getHand().addCardToHand(gameStack.pop());
+			playerEntity.getHand().getLastCardAdded().setCardFaceDown(true);
+		}
+		
 	}
 	
 	

@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import javax.swing.JPanel;
 
@@ -18,6 +19,7 @@ public class GameWindow extends JPanel{
 	private static final int PANEL_HEIGHT = 800;
 	
 	private static List<RenderObject> renderObjects = new ArrayList<>();
+	private static Stack<RenderObject> renderStack = new Stack<>();
 
 	
 	public GameWindow() {
@@ -32,6 +34,8 @@ public class GameWindow extends JPanel{
 		if(!renderObjects.contains(r)) {
 			renderObjects.add(r);
 		}
+		
+		renderStack.add(r);
 	}
 	
 	public void passRenderObjects(List<RenderObject> r) {
@@ -40,6 +44,10 @@ public class GameWindow extends JPanel{
 			if(!renderObjects.contains(renderObjectToAdd)) {
 				renderObjects.add(renderObjectToAdd);
 			}
+		}
+		
+		for(RenderObject renderObjectToAdd : r) {
+			renderStack.add(renderObjectToAdd);
 		}
 	}
 	
@@ -63,17 +71,19 @@ public class GameWindow extends JPanel{
 		
 		
 		//drop shadow color
-//		g.setColor(new Color(34, 35, 36));
+		g.setColor(new Color(34, 35, 36));
 		for(RenderObject r : renderObjects) {
-			
-			
+
 			//turn off printing gamezones
-//			if(r.getClass() != GameZone.class) {
-//				r.draw(g); 
-//			}
-			
+			if(r.getClass() != GameZone.class) {
+				r.draw(g); 
+			}
 			r.draw(g); 
 		}
+		
+//		for(int i = 0; i < renderStack.size(); i++) {
+//			renderStack.pop().draw(g);
+//		}
 	}
 
 	

@@ -18,25 +18,34 @@ public class GameController implements Runnable, MouseListener {
 	private GameModel gameModel;
 	private GameView gameView;
 	private AnimationController animationController;
-	
-	
 	private static TableController tableController;
+
 	private static List<RenderObject> renderObjects = new ArrayList<>();
 	
 	
 	public GameController(GameModel gameModel, GameView gameView) {
 		this.gameModel = gameModel;
 		this.gameView = gameView;
+
 		tableController = new TableController();
 		animationController = new AnimationController(gameView.getGameWindow(), tableController);
 		passMouseListener();
 		initGameZones();
+		initGame();
 
 	}
 	
 	public void passMouseListener() {
 		
 		gameView.getGameWindow().addMouseListener(this);
+	}
+	
+	public void initGame() {
+		
+		tableController.getDeckController().initGame(tableController.getPlayerController());
+		
+		
+		
 	}
 	
 	public void initGameZones() {
@@ -46,8 +55,8 @@ public class GameController implements Runnable, MouseListener {
 //			renderObjects.add(c);
 //		}
 		
-		renderObjects.add(tableController.getDeckController().lookAtTopCard());
-		System.out.println("init top card is: " + tableController.getDeckController().lookAtTopCard().getCardString());
+		//renderObjects.add(tableController.getDeckController().lookAtTopCard());
+		//System.out.println("init top card is: " + tableController.getDeckController().lookAtTopCard().getCardString());
 		passWindowRenderObjects(renderObjects);
 		
 	}
@@ -66,7 +75,7 @@ public class GameController implements Runnable, MouseListener {
 	}
 	
 	public void update() {
-		
+	
 	}
 	
 	public void render() {
@@ -93,12 +102,14 @@ public class GameController implements Runnable, MouseListener {
 				.lookAtTopCard()
 				.getCardBounds()
 				.contains(e.getPoint())) {
-			System.out.println("top card is: " + tableController.getDeckController().lookAtTopCard().getCardString());
+			//System.out.println("top card is: " + tableController.getDeckController().lookAtTopCard().getCardString());
+			if(!animationController.isCardAnimating()) {
+				animationController.animateCard(tableController.getDeckController().lookAtTopCard(), tableController.getDealtCardZone("playerHandZone").getNextZone().getCardHolderLocation());
+				
+				passWindowRenderObject(tableController.getDeckController().getTopStackCard());
+				//System.out.println(tableController.getDeckController().lookAtTopCard().getCardString());
+			}
 			
-			animationController.animateCard(tableController.getDeckController().lookAtTopCard(), tableController.getDealtCardZone("playerHandZone").getNextZone().getCardHolderLocation());
-			
-			passWindowRenderObject(tableController.getDeckController().getTopStackCard());
-			System.out.println(tableController.getDeckController().lookAtTopCard().getCardString());
 		
 		} 
 		
