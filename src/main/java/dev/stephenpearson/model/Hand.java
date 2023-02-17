@@ -31,6 +31,7 @@ public class Hand {
 	}
 	
 	public void printHand() {
+		System.out.println("In Hand");
 		System.out.print("Cards in hand: ");
 		for(Card c : cardsInHand) {
 			System.out.print(c.getCardString() + " ");

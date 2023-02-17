@@ -18,7 +18,7 @@ public class GameWindow extends JPanel{
 	private static final int PANEL_WIDTH = 800;
 	private static final int PANEL_HEIGHT = 800;
 	
-	private static List<RenderObject> renderObjects = new ArrayList<>();
+	private List<RenderObject> renderObjects = new ArrayList<>();
 	private static Stack<RenderObject> renderStack = new Stack<>();
 
 	
@@ -49,6 +49,10 @@ public class GameWindow extends JPanel{
 		for(RenderObject renderObjectToAdd : r) {
 			renderStack.add(renderObjectToAdd);
 		}
+	}
+	
+	public void updateRenderList(List<RenderObject> renderObjects) {
+		this.renderObjects = renderObjects;
 	}
 	
 	

@@ -24,6 +24,7 @@ public class DeckController {
 
 		buildDecks(4);
 		buildGameStack();
+		topCard = gameStack.peek();
 		setCardPoints(deckZone.getZoneCenterPoint());
 		System.out.println("From DeckController "+ " - Cards in Memory - " + gameStack.peek().getCardsInMemory());
 	
@@ -72,11 +73,11 @@ public class DeckController {
 		
 		switch(upOrDown) {
 		case "up":
-			playerEntity.getHand().addCardToHand(gameStack.pop());
+			playerEntity.getHand().addCardToHand(getTopStackCard());
 			
 		case "down":
 			
-			playerEntity.getHand().addCardToHand(gameStack.pop());
+			playerEntity.getHand().addCardToHand(getTopStackCard());
 			playerEntity.getHand().getLastCardAdded().setCardFaceDown(true);
 		}
 		

@@ -17,8 +17,9 @@ public class GameController implements Runnable, MouseListener {
 	
 	private GameModel gameModel;
 	private GameView gameView;
-	private AnimationController animationController;
+	private static AnimationController animationController;
 	private static TableController tableController;
+	private static RenderController renderController;
 
 	private static List<RenderObject> renderObjects = new ArrayList<>();
 	
@@ -26,7 +27,7 @@ public class GameController implements Runnable, MouseListener {
 	public GameController(GameModel gameModel, GameView gameView) {
 		this.gameModel = gameModel;
 		this.gameView = gameView;
-
+		renderController = new RenderController();
 		tableController = new TableController();
 		animationController = new AnimationController(gameView.getGameWindow(), tableController);
 		passMouseListener();
@@ -43,21 +44,19 @@ public class GameController implements Runnable, MouseListener {
 	public void initGame() {
 		
 		tableController.getDeckController().initGame(tableController.getPlayerController());
-		
-		
-		
+		renderController.addRenderObjectToList(tableController.getDeckController().lookAtTopCard());
 	}
 	
 	public void initGameZones() {
-		tableController.getGameZones().forEach((S,G) -> renderObjects.add(G));
-
+		//tableController.getGameZones().forEach((S,G) -> renderObjects.add(G));
+		tableController.getGameZones().forEach((S,G) -> renderController.addRenderObjectToList(G));
 //		for(RenderObject c : tableController.getDeckController().getGameStack()) {
 //			renderObjects.add(c);
 //		}
 		
 		//renderObjects.add(tableController.getDeckController().lookAtTopCard());
 		//System.out.println("init top card is: " + tableController.getDeckController().lookAtTopCard().getCardString());
-		passWindowRenderObjects(renderObjects);
+		//passWindowRenderObjects(renderObjects);
 		
 	}
 	
@@ -75,7 +74,7 @@ public class GameController implements Runnable, MouseListener {
 	}
 	
 	public void update() {
-	
+		gameView.getGameWindow().updateRenderList(renderController.getRenderObjects());
 	}
 	
 	public void render() {
