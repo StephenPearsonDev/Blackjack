@@ -2,7 +2,7 @@ package dev.stephenpearson.model;
 
 import java.util.Stack;
 
-public interface Dealable {
+public interface Dealable  {
 	
 	
 	public default void dealCardTo(PlayerEntity playerEntity, Stack<Card> gameStack, String upOrDown) {

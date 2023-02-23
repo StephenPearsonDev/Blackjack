@@ -9,8 +9,11 @@ import java.util.Stack;
 
 import javax.swing.JPanel;
 
+import dev.stephenpearson.controller.GUIController;
 import dev.stephenpearson.model.GameZone;
+import dev.stephenpearson.model.PlayerControlPanel;
 import dev.stephenpearson.model.RenderObject;
+import dev.stephenpearson.model.TextAreas;
 
 
 public class GameWindow extends JPanel{
@@ -18,12 +21,39 @@ public class GameWindow extends JPanel{
 	private static final int PANEL_WIDTH = 800;
 	private static final int PANEL_HEIGHT = 800;
 	
+	private GUI gui;
+	private PlayerControlPanel playerControlPanel;
+	
 	private List<RenderObject> renderObjects = new ArrayList<>();
 	private static Stack<RenderObject> renderStack = new Stack<>();
+	
+	
 
 	
 	public GameWindow() {
+
 		setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+		setLayout(null);
+		
+
+	}
+	
+	public void addGUI(GUI gui) {
+		this.gui = gui;
+		System.out.println("init gui");
+		initInterface();
+	}
+	
+	public void initInterface() {
+		
+		System.out.println("init gui");
+		gui.getPlayerControlPanel().getButtonMap().forEach((String,JButton) -> {
+			add(JButton);
+		});
+		
+		gui.getTextAreas().getTextAreasMap().forEach((String,JTextArea) -> {
+			add(JTextArea);
+		});
 	}
 	
 	public void render() {

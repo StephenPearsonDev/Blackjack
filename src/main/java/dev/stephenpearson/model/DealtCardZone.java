@@ -12,6 +12,7 @@ public class DealtCardZone extends GameZone {
 	private int holderPointer = 0;
 	
 	
+	
 
 	public DealtCardZone(String zoneName) {
 		super(zoneName);

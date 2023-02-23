@@ -11,6 +11,7 @@ public class GameZone implements RenderObject {
 	private Rectangle zoneRect;
 	private Color zoneColor;
 	private Point zoneCenterPoint;
+	private HandHolder handHolder;
 	
 	private String zoneName;
 
@@ -18,7 +19,7 @@ public class GameZone implements RenderObject {
 		
 		this.zoneName = zoneName;
 		zone = Zone.getZone(zoneName);
-		
+		handHolder = new HandHolder(zoneCenterPoint);
 		zoneRect = new Rectangle(zone.x, zone.y, zone.w, zone.h);
 		zoneColor = zone.color;
 		zoneCenterPoint = new Point(zoneRect.x + zoneRect.width / 2, zoneRect.y + zoneRect.height / 2);

@@ -7,4 +7,10 @@ public class Dealer extends PlayerEntity implements Dealable {
 		
 	}
 
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

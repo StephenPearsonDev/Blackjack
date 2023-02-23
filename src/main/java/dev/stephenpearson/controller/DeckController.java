@@ -19,15 +19,20 @@ public class DeckController {
 	private static Stack<Card> gameStack = new Stack<>();
 	private Card topCard;
 	private PlayerController playerController;
+	private AnimationController animationController;
 	
-	public DeckController(GameZone deckZone ) {
-
+	public DeckController(GameZone deckZone) {
+		this.animationController = animationController;
 		buildDecks(4);
 		buildGameStack();
 		topCard = gameStack.peek();
 		setCardPoints(deckZone.getZoneCenterPoint());
-		System.out.println("From DeckController "+ " - Cards in Memory - " + gameStack.peek().getCardsInMemory());
+		//System.out.println("From DeckController "+ " - Cards in Memory - " + gameStack.peek().getCardsInMemory());
 	
+	}
+	
+	public void passAnimationController(AnimationController animationController) {
+		this.animationController = animationController;
 	}
 	
 	//The Dealer deals 1 card down to self then 1 card up to player, 1 card up to self and 1 card up to player
@@ -35,13 +40,16 @@ public class DeckController {
 		this.playerController = playerController;
 		
 		((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Player"), gameStack, "up");
-		System.out.println(gameStack.size());
+		//animationController.animateCard(topCard, playerController.getPlayer("Player").getPlayerZone().getZoneRectangle().getLocation());
+		//animationController.animateCard(lookAtTopCard(), tableController.getDealtCardZone("playerHandZone").getNextZone().getCardHolderLocation());
+		//System.out.println(gameStack.size());
 		((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Dealer"), gameStack, "down");
-		System.out.println(gameStack.size());
+		
+		//System.out.println(gameStack.size());
 		((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Player"), gameStack, "up");
-		System.out.println(gameStack.size());
+		//System.out.println(gameStack.size());
 		((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Dealer"), gameStack, "up");
-		System.out.println(gameStack.size());
+		//System.out.println(gameStack.size());
 		
 		for(PlayerEntity p : playerController.getPlayerList()) {
 			p.getHand().printHand();

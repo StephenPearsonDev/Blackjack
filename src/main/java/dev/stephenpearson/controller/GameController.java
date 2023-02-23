@@ -8,18 +8,21 @@ import java.util.List;
 
 import dev.stephenpearson.model.Card;
 import dev.stephenpearson.model.GameModel;
+import dev.stephenpearson.model.Player;
 import dev.stephenpearson.model.RenderObject;
 import dev.stephenpearson.view.GameView;
 
 
 
-public class GameController implements Runnable, MouseListener {
+public class GameController implements Runnable {
 	
 	private GameModel gameModel;
 	private GameView gameView;
 	private static AnimationController animationController;
 	private static TableController tableController;
 	private static RenderController renderController;
+	private static GUIController guiController;
+	private static InputHandler inputHandler;
 
 	private static List<RenderObject> renderObjects = new ArrayList<>();
 	
@@ -27,10 +30,17 @@ public class GameController implements Runnable, MouseListener {
 	public GameController(GameModel gameModel, GameView gameView) {
 		this.gameModel = gameModel;
 		this.gameView = gameView;
+		
 		renderController = new RenderController();
 		tableController = new TableController();
+		
+		guiController = new GUIController(tableController.getPlayerController());
 		animationController = new AnimationController(gameView.getGameWindow(), tableController);
+		tableController.passAnimationController(animationController);
+		inputHandler = new InputHandler(tableController, animationController);
 		passMouseListener();
+		passGUI();
+		passInputHandler();
 		initGameZones();
 		initGame();
 
@@ -38,13 +48,28 @@ public class GameController implements Runnable, MouseListener {
 	
 	public void passMouseListener() {
 		
-		gameView.getGameWindow().addMouseListener(this);
+		gameView.getGameWindow().addMouseListener(inputHandler);
+	}
+	
+	public void passInputHandler() {
+		guiController.getGUI().getPlayerControlPanel().passInputHandler(inputHandler);
+	}
+	
+	public void passGUI() {
+		if(guiController.getGUI() == null) {
+			System.out.println("gui is null");
+		}
+		gameView.getGameWindow().addGUI(guiController.getGUI());
 	}
 	
 	public void initGame() {
+
 		
-		tableController.getDeckController().initGame(tableController.getPlayerController());
 		renderController.addRenderObjectToList(tableController.getDeckController().lookAtTopCard());
+	}
+	
+	public void dealFirstRound() {
+		tableController.getDeckController().initGame(tableController.getPlayerController());
 	}
 	
 	public void initGameZones() {
@@ -74,7 +99,17 @@ public class GameController implements Runnable, MouseListener {
 	}
 	
 	public void update() {
+		guiController.getGUI().getTextAreas().updateTextAreas();
 		gameView.getGameWindow().updateRenderList(renderController.getRenderObjects());
+		checkGameState();
+	}
+	
+	public void checkGameState() {
+		
+		if(((Player)tableController.getPlayerController().getPlayer("Player")).isBetPlaced()) {
+			dealFirstRound();
+		}
+		
 	}
 	
 	public void render() {
@@ -93,56 +128,6 @@ public class GameController implements Runnable, MouseListener {
 		
 	}
 	
-	public void handleInput(MouseEvent e) {
-		
-		
-		if(tableController.getDeckController()
-				
-				.lookAtTopCard()
-				.getCardBounds()
-				.contains(e.getPoint())) {
-			//System.out.println("top card is: " + tableController.getDeckController().lookAtTopCard().getCardString());
-			if(!animationController.isCardAnimating()) {
-				animationController.animateCard(tableController.getDeckController().lookAtTopCard(), tableController.getDealtCardZone("playerHandZone").getNextZone().getCardHolderLocation());
-				
-				passWindowRenderObject(tableController.getDeckController().getTopStackCard());
-				//System.out.println(tableController.getDeckController().lookAtTopCard().getCardString());
-			}
-			
-		
-		} 
-		
-		
-	}
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		handleInput(e);
-		
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

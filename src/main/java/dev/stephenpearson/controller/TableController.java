@@ -10,14 +10,22 @@ public class TableController {
 	
 	private static DeckController deckController;
 	private static PlayerController playerController;
+	private AnimationController animationController;
 	private static Map<String, GameZone> gameZones;
+	
 	
 	   
 	public TableController() {
 		initZones();
 		deckController = new DeckController(gameZones.get("deckZone"));
-		playerController = new PlayerController();
+		playerController = new PlayerController(gameZones);
 		
+		
+	}
+	
+	public void passAnimationController(AnimationController animationController) {
+		this.animationController = animationController;
+		deckController.passAnimationController(this.animationController);
 	}
 	
 	public void initZones() {
@@ -50,6 +58,8 @@ public class TableController {
 		
 		GameZone playerHandZone = new DealtCardZone("playerHandZone");
 		gameZones.put(playerHandZone.getZoneName(), playerHandZone);
+		
+	
 	}
 	
 	public Map<String, GameZone> getGameZones() {
