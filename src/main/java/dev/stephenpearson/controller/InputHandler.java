@@ -26,6 +26,8 @@ public class InputHandler implements MouseListener {
 	
 	public void handleBetInput(int betAmount) {
 		
+		
+		
 		switch(betAmount) {
 		case 10:
 			((Player)tableController.getPlayerController().getPlayer("Player")).getPlayerBank().decreaseBank(betAmount);

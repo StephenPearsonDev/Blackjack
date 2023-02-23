@@ -2,7 +2,7 @@ package dev.stephenpearson.model;
 
 public class Player extends PlayerEntity {
 	
-	private boolean betPlaced = false;
+	private boolean waitingForBet = true;
 	private PlayerBank playerBank;
 	
 	public Player() {
@@ -16,17 +16,18 @@ public class Player extends PlayerEntity {
 	}
 	
 	public boolean isBetPlaced() {
-		return betPlaced;
+		return waitingForBet;
 	}
 	
 	public void setBetPlaced(boolean b) {
-		betPlaced = b;
+		
+		waitingForBet = b;
 		playerBank.setBetPlaced(b);
 	}
 	
 	public void update() {
 		if(playerBank.isBetPlaced()) {
-			betPlaced = true;
+			waitingForBet = false;
 		}
 	}
 	

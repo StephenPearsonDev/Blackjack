@@ -52,19 +52,10 @@ public class AnimationController implements ActionListener {
 	
 	public void animateCard(Card cardToAnimate, Point destination) {
 		
-
-		
 		this.cardToAnimate = cardToAnimate;
-
 		cardOrigin = cardToAnimate.getCornerPoint();
 		cardDestination = destination;
-		
-		
-				startTimer();
-			
-		
-		
-		
+		startTimer();
 		
 	}
 	

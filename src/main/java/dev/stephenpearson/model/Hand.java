@@ -10,6 +10,7 @@ public class Hand {
 	private List<Card> cardsInHand = new ArrayList<>();
 	private int numCardsInHand = 0;
 	private static int numberOfHands = 0;
+	private Card newCard;
 	
 	public Hand() {
 		System.out.println("From Hand " + "Number of hands: " + ++numberOfHands);
@@ -19,6 +20,7 @@ public class Hand {
 		//System.out.println(numCardsInHand);
 		cardsInHand.add(c);
 		numCardsInHand++;
+		newCard = c;
 		
 	}
 	
@@ -37,6 +39,10 @@ public class Hand {
 			System.out.print(c.getCardString() + " ");
 		}
 		System.out.println();
+	}
+	
+	public Card getNewCard() {
+		return newCard;
 	}
 	
 }

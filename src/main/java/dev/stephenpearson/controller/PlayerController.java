@@ -65,6 +65,7 @@ public class PlayerController {
 	
 	public void update() {
 		for(PlayerEntity pi : playerList) {
+		
 			pi.update();
 		}
 	}

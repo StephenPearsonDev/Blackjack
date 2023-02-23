@@ -17,7 +17,7 @@ public class TableController {
 	   
 	public TableController() {
 		initZones();
-		deckController = new DeckController(gameZones.get("deckZone"));
+		deckController = new DeckController(gameZones);
 		playerController = new PlayerController(gameZones);
 		
 		
@@ -60,6 +60,10 @@ public class TableController {
 		gameZones.put(playerHandZone.getZoneName(), playerHandZone);
 		
 	
+	}
+	
+	public void update() {
+		playerController.update();
 	}
 	
 	public Map<String, GameZone> getGameZones() {

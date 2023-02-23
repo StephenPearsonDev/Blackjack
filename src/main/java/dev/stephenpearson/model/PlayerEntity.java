@@ -7,6 +7,7 @@ public abstract class PlayerEntity {
 	private Zone handZone;
 	private GameZone playerZone;
 	private String playerType;
+	private boolean hasHand = false;
 	
 	public PlayerEntity() {
 		
@@ -41,8 +42,18 @@ public abstract class PlayerEntity {
 	public GameZone getPlayerZone() {
 		return playerZone;
 	}
+	
+	public boolean hasHand() {
+		return hasHand;
+	}
+	
+	public void setHasHand(boolean b) {
+		hasHand = b;
+	}
 
 	public abstract void update();
+	
+	
 	
 	
 	
