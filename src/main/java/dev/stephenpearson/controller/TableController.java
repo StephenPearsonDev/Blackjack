@@ -1,6 +1,8 @@
 package dev.stephenpearson.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dev.stephenpearson.model.ComputerDealer;
@@ -18,12 +20,10 @@ public class TableController {
 	private static Map<String, GameZone> gameZones;
 	private static PlayerEntity humanPlayer;
 	private static PlayerEntity computerDealer;
+	private static List<PlayerEntity> playerEntities;
 	private State currentGameState;
-	private String[] zoneNames = new String[] {"deck","graveyard","dealerHand","playerHand","bank", "chipStack", "betStack"};
-	
-	
-	
-	
+	private static boolean roundBetPlaced = false;
+
 	   
 	public TableController(State currentGameState) {
 		
@@ -36,9 +36,14 @@ public class TableController {
 	public void init() {
 		
 		deckController = new DeckController(4);
+		
+		
 		humanPlayer = new HumanPlayer();
 		computerDealer = new ComputerDealer(deckController.getMainGameStack());
 		
+		playerEntities = new ArrayList<>();
+		playerEntities.add(humanPlayer);
+		playerEntities.add(computerDealer);
 		
 	}
 	
@@ -50,7 +55,7 @@ public class TableController {
 	public void initZones() {
 		gameZones = new HashMap<>();
 		
-		for(String s : zoneNames) {
+		for(String s : GameZone.Zone.getZoneNames()) {
 			gameZones.put(s, new GameZone(s));
 		}
 	}
@@ -88,6 +93,19 @@ public class TableController {
 
 	public void setComputerDealer(PlayerEntity computerDealer) {
 		TableController.computerDealer = computerDealer;
+	}
+	
+	public void wakeDealer() {
+			System.out.println("dealer woken");
+		
+				((ComputerDealer)computerDealer).dealFirstCards(playerEntities, deckController.getMainGameStack());
+			
+		}
+	
+	public void requestBet() {
+		
+		
+		
 	}
 	
 	

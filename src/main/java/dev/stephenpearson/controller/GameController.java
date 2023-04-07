@@ -18,12 +18,8 @@ import dev.stephenpearson.view.GameWindow;
 public class GameController implements Runnable {
 
 	
-	private static AnimationController animationController;
 	private static TableController tableController;
 	private static RenderController renderController;
-	private static GUIController guiController;
-	private static InputHandler inputHandler;
-	private static GameStateController gameStateController;
 	private static StateController stateController;
 	private static Thread gameThread;
 	private static GameWindow gameWindow;
@@ -31,7 +27,6 @@ public class GameController implements Runnable {
 	
 	
 	
-	private static List<Renderable> renderObjects = new ArrayList<>();
 
 	public GameController() {
 		
@@ -47,7 +42,7 @@ public class GameController implements Runnable {
 	}
 
 	
-
+	
 
 
 	public void initGameZones() {
@@ -63,8 +58,30 @@ public class GameController implements Runnable {
 	public void initGame() {
 		initGameZones();
 		tableController.init();
-		gameWindow = new GameWindow(states[0],ignored -> {
-	        stateController.changeState(states[1]);
+		gameWindow = new GameWindow(states[0],buttonAction -> {
+	        switch(buttonAction) {
+	        
+	        case EXIT:
+	        	System.exit(0);
+	        	break;
+	        
+	        case OPTIONS:
+	        	System.out.println("options");
+	        	break;
+	        
+	        case GAME:
+	        	stateController.changeState(states[1]);
+	        	tableController.requestBet();
+	        	break;
+	        
+	        case BET10:
+	        	
+	        	
+	        
+	        default:
+	        	
+	        	break;
+	        } 
 	    });
 		
 		stateController.addObserver(gameWindow);

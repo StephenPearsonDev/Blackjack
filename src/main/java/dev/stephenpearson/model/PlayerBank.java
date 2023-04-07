@@ -31,9 +31,7 @@ public class PlayerBank {
 				}
 			}
 			
-		}
-		
-		
+		}	
 	}
 	
 	public void increasBank(int increase) {

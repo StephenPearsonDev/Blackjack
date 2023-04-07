@@ -23,5 +23,7 @@ public class ComputerDealer extends PlayerEntity implements DealingStrategy {
 	public void setMainGameStack(Stack<Card> mainGameStack) {
 		this.mainGameStack = mainGameStack;
 	}
+	
+	
 
 }

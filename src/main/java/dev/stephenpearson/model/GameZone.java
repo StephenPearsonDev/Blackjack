@@ -13,6 +13,8 @@ public class GameZone implements Renderable {
 	private Point zoneCenterPoint;
 	private HandHolder handHolder;
 	
+	
+	
 	private String zoneName;
 
 	public GameZone(String zoneName) {
@@ -55,22 +57,30 @@ public class GameZone implements Renderable {
 		return zoneCenterPoint;
 	}
 	
-	enum Zone {
+	public enum Zone {
 		
-		DEALER_HAND("dealerHandZone",0,0,600,200, new Color(86, 111, 119)),
-		PLAYER_HAND("playerHandZone",0,600,600,200, new Color(238, 138, 118)),
-		DECK("deckZone",600,0,200,200, new Color(225, 129, 73)),
-		BURNT_CARDS("burntCards",600,200,200,200, new Color(172, 218, 106)),
+		
+		
+		DEALER_HAND("dealerHand",0,0,600,200, new Color(86, 111, 119)),
+		PLAYER_HAND("playerHand",0,600,600,200, new Color(238, 138, 118)),
+		DECK("deck",600,0,200,200, new Color(225, 129, 73)),
+		BURNT_CARDS("graveyard",600,200,200,200, new Color(172, 218, 106)),
 		BET_STACK("betStack",600,400,200,200, new Color(223, 223, 133)),
 		CHIP_STACK("chipStack",600,600,200,200, new Color(140, 186, 181)),
-		GAME_ZONE("gameZone",0,200,600,400,new Color(153, 153, 255));
+		GAME_ZONE("gameZone",0,200,600,400,new Color(153, 153, 255)),
+		MENU_ZONE("menuZone",100,100,400,400, new Color(124,245,142)),
+		BANK_ZONE("bank",100,100,100,100,new Color(100,100,100));
 		
 		private String zoneName;
 		private int x, y, w, h;
 		private Color color;
+		private static String[] zoneNames = new String[] {"deck","graveyard","dealerHand","playerHand","bank", "chipStack", "betStack", "menuZone", "gameZone"};
 		
 		
-		
+		public static String[] getZoneNames() {
+			return zoneNames;
+		}
+
 		private Zone(String zoneName, int x, int y, int w, int h, Color color) {
 			this.zoneName = zoneName;
 			this.x = x;
@@ -91,6 +101,7 @@ public class GameZone implements Renderable {
 		      for (Zone z : Zone.values()) {
 		          if (z.zoneName.equalsIgnoreCase(zoneName)) return z;
 		      }
+		      System.out.println(zoneName);
 		      throw new IllegalArgumentException("Zone not found");
 		   }
 		
