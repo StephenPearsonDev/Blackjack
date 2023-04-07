@@ -1,6 +1,7 @@
 package dev.stephenpearson.controller;
 
 import java.awt.Point;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +16,11 @@ import dev.stephenpearson.model.Player;
 import dev.stephenpearson.model.PlayerEntity;
 
 public class DeckController {
+	private DeckBuilder deckBuilder;
 	
 	private static Map<Integer, Deck> decks;
 	private static Stack<Card> gameStack = new Stack<>();
+	private static Stack<Card> mainGameStack = new Stack<>();
 	private Card topCard;
 	
 	private PlayerController playerController;
@@ -26,9 +29,9 @@ public class DeckController {
 	private boolean firstRoundDealt = false;
 	
 	public DeckController(Map<String, GameZone> gameZones) {
-	
+		deckBuilder = new DeckBuilder();
 		this.gameZones = gameZones;
-		buildDecks(4);
+		buildDecks(2);
 		buildGameStack();
 		topCard = gameStack.peek();
 		
@@ -124,10 +127,20 @@ public class DeckController {
 	}
 	
 	public void buildDecks(int numOfDecks) {
+		
+		
 		decks = new HashMap<>();
 		for(int d = 0; d < numOfDecks; d++) {
-			decks.put(Integer.valueOf(d), new Deck());
+			System.out.println("calling build");
+			
+			Deck newDeck = deckBuilder.generateStandardDeck().shuffle().build();
+			mainGameStack.addAll(newDeck.getCardsInDeck());
+			decks.put(Integer.valueOf(d), newDeck);
+			newDeck.printDeckToConsole();
 		}
+		
+		System.out.println(mainGameStack.size());
+		System.out.printf("game stack has: %d cards%n", mainGameStack.size());
 		
 		
 	}
@@ -149,5 +162,9 @@ public class DeckController {
 	public Card lookAtTopCard() {
 		return topCard;
 	}
+	
+	//DECK UTILITY METHODS
+	
+	
 
 }

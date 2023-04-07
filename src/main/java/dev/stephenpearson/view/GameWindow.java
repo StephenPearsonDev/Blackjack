@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import dev.stephenpearson.controller.GUIController;
 import dev.stephenpearson.model.GameZone;
 import dev.stephenpearson.model.PlayerControlPanel;
-import dev.stephenpearson.model.RenderObject;
+import dev.stephenpearson.model.Renderable;
 import dev.stephenpearson.model.TextAreas;
 
 
@@ -24,8 +24,8 @@ public class GameWindow extends JPanel{
 	private GUI gui;
 	private PlayerControlPanel playerControlPanel;
 	
-	private List<RenderObject> renderObjects = new ArrayList<>();
-	private static Stack<RenderObject> renderStack = new Stack<>();
+	private List<Renderable> renderObjects = new ArrayList<>();
+	private static Stack<Renderable> renderStack = new Stack<>();
 	
 	
 
@@ -40,13 +40,13 @@ public class GameWindow extends JPanel{
 	
 	public void addGUI(GUI gui) {
 		this.gui = gui;
-		System.out.println("init gui");
+		//System.out.println("init gui");
 		initInterface();
 	}
 	
 	public void initInterface() {
 		
-		System.out.println("init gui");
+		//System.out.println("init gui");
 		gui.getPlayerControlPanel().getButtonMap().forEach((String,JButton) -> {
 			add(JButton);
 		});
@@ -60,7 +60,7 @@ public class GameWindow extends JPanel{
 		repaint();
 	}
 	
-	public void addRenderObject(RenderObject r) {
+	public void addRenderObject(Renderable r) {
 		if(!renderObjects.contains(r)) {
 			renderObjects.add(r);
 		}
@@ -68,20 +68,20 @@ public class GameWindow extends JPanel{
 		renderStack.add(r);
 	}
 	
-	public void passRenderObjects(List<RenderObject> r) {
+	public void passRenderObjects(List<Renderable> r) {
 
-		for(RenderObject renderObjectToAdd : r) {
+		for(Renderable renderObjectToAdd : r) {
 			if(!renderObjects.contains(renderObjectToAdd)) {
 				renderObjects.add(renderObjectToAdd);
 			}
 		}
 		
-		for(RenderObject renderObjectToAdd : r) {
+		for(Renderable renderObjectToAdd : r) {
 			renderStack.add(renderObjectToAdd);
 		}
 	}
 	
-	public void updateRenderList(List<RenderObject> renderObjects) {
+	public void updateRenderList(List<Renderable> renderObjects) {
 		this.renderObjects = renderObjects;
 	}
 	
@@ -106,7 +106,7 @@ public class GameWindow extends JPanel{
 		
 		//drop shadow color
 		g.setColor(new Color(34, 35, 36));
-		for(RenderObject r : renderObjects) {
+		for(Renderable r : renderObjects) {
 
 			//turn off printing gamezones
 			if(r.getClass() != GameZone.class) {

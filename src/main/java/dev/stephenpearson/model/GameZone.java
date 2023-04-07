@@ -5,7 +5,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-public class GameZone implements RenderObject {
+public class GameZone implements Renderable {
 	
 	private Zone zone;
 	private Rectangle zoneRect;

@@ -10,7 +10,7 @@ import dev.stephenpearson.model.Card;
 import dev.stephenpearson.model.GameModel;
 import dev.stephenpearson.model.GameState;
 import dev.stephenpearson.model.Player;
-import dev.stephenpearson.model.RenderObject;
+import dev.stephenpearson.model.Renderable;
 import dev.stephenpearson.view.GameView;
 
 public class GameController implements Runnable {
@@ -24,7 +24,7 @@ public class GameController implements Runnable {
 	private static InputHandler inputHandler;
 	private static GameStateController gameStateController;
 	
-	private static List<RenderObject> renderObjects = new ArrayList<>();
+	private static List<Renderable> renderObjects = new ArrayList<>();
 
 	public GameController(GameModel gameModel, GameView gameView) {
 		this.gameModel = gameModel;
@@ -75,13 +75,13 @@ public class GameController implements Runnable {
 		tableController.getGameZones().forEach((S, G) -> renderController.addRenderObjectToList(G));
 	}
 
-	public void passWindowRenderObjects(List<RenderObject> r) {
+	public void passWindowRenderObjects(List<Renderable> r) {
 
 		gameView.getGameWindow().passRenderObjects(r);
 
 	}
 
-	public void passWindowRenderObject(RenderObject r) {
+	public void passWindowRenderObject(Renderable r) {
 		renderObjects.add(r);
 		passWindowRenderObjects(renderObjects);
 
@@ -101,10 +101,9 @@ public class GameController implements Runnable {
 	public void checkGameState() {
 		// System.out.println(((Player)tableController.getPlayerController().getPlayer("Player")).isBetPlaced());
 		// System.out.println(((Player)tableController.getPlayerController().getPlayer("Player")).getPlayerBank().isBetPlaced());
-		System.out.println(gameStateController.getGameState().toString());
+		
 		if (gameStateController.getGameState() == GameState.DEALING_ROUND) {
 			gameStateController.changeGameState(GameState.WAITING_FOR_PLAYER);
-			System.out.println("dealing first round");
 			dealFirstRound();
 		}
 

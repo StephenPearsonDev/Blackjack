@@ -6,7 +6,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-public class Card implements RenderObject {
+public class Card implements Renderable {
 	
 	private Suit suit;
 	private Rank rank;
@@ -24,7 +24,46 @@ public class Card implements RenderObject {
 	private boolean topCard = false;
 	private boolean faceDown = true;
 	
+	public static enum Suit {
+		HEARTS,
+		DIAMONDS,
+		CLUBS,
+		SPADES
+	}
 	
+	public static enum Rank {
+		
+		ACE_ONE(1),
+		TWO(2),
+		THREE(3),
+		FOUR(4),
+		FIVE(5),
+		SIX(6),
+		SEVEN(7),
+		EIGHT(8),
+		NINE(9),
+		TEN(10),
+		JACK(10),
+		QUEEN(10),
+		KING(10),
+		ACE(11);
+		
+		private int rankValue;
+		
+		private Rank(int rankValue) {
+			this.setRankValue(rankValue);
+		}
+
+		public int getRankValue() {
+			return rankValue;
+		}
+
+		public void setRankValue(int rankValue) {
+			this.rankValue = rankValue;
+		}
+
+		
+	}
 	
 	public Card(Suit s, Rank r) {
 		cardsInMemory++;

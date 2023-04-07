@@ -3,7 +3,7 @@ package dev.stephenpearson.view;
 import javax.swing.JFrame;
 
 import dev.stephenpearson.model.PlayerControlPanel;
-import dev.stephenpearson.model.RenderObject;
+import dev.stephenpearson.model.Renderable;
 
 public class GameView extends JFrame {
 	

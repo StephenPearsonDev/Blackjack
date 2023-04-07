@@ -3,14 +3,15 @@ package dev.stephenpearson.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Stack;
 
 public class Deck {
 	
-	private List<Card> cardsInDeck;
+	private Stack<Card> cardsInDeck;
 	
-	public Deck() {
-		cardsInDeck = new ArrayList<Card>();
-		buildStandardDeck();
+	public Deck(Stack<Card> cards) {
+		
+		this.cardsInDeck = cards;
 		shuffleDeck();
 	}
 	
@@ -18,16 +19,6 @@ public class Deck {
 		return cardsInDeck;
 	}
 	
-	public void buildStandardDeck() {
-		
-		for(Suit s : Suit.values()) {				
-			for(Rank r : Rank.values()) {
-				if(r != Rank.ACE_ONE) {
-					cardsInDeck.add(new Card(s, r));
-				}
-			}
-		}
-	}
 	
 	public void shuffleDeck() {
 		Collections.shuffle(cardsInDeck);

@@ -23,7 +23,7 @@ public class TextAreas {
 	}
 	
 	public void initTextAreas() {
-		System.out.println("text area made");
+		//System.out.println("text area made");
 		bankRectangle = new Rectangle(625,550,150,40);
 		bankLabel = new JLabel("Bank account: "+playerBank.getBankString(),SwingConstants.CENTER);
 		bankLabel.setBounds(bankRectangle);
