@@ -2,10 +2,10 @@ package dev.stephenpearson.model;
 
 import java.util.Stack;
 
-public interface Dealable  {
+public interface DealingStrategy  {
 	
 	
-	public default void dealCardTo(PlayerEntity playerEntity, Stack<Card> gameStack, String upOrDown) {
+	default void dealCardTo(PlayerEntity playerEntity, Stack<Card> gameStack, String upOrDown) {
 		
 		switch(upOrDown) {
 		case "up":

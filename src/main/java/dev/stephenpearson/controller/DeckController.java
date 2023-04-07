@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.Stack;
 
 import dev.stephenpearson.model.Card;
-import dev.stephenpearson.model.Dealer;
+import dev.stephenpearson.model.ComputerDealer;
 import dev.stephenpearson.model.DealtCardZone;
 import dev.stephenpearson.model.Deck;
 import dev.stephenpearson.model.GameZone;
-import dev.stephenpearson.model.Player;
+import dev.stephenpearson.model.HumanPlayer;
 import dev.stephenpearson.model.PlayerEntity;
 
 public class DeckController {
@@ -23,10 +23,16 @@ public class DeckController {
 	private static Stack<Card> mainGameStack = new Stack<>();
 	private Card topCard;
 	
-	private PlayerController playerController;
+	
 	private AnimationController animationController;
 	private static Map<String, GameZone> gameZones;
 	private boolean firstRoundDealt = false;
+	
+	public DeckController(int numberOfDecks) {
+		deckBuilder = new DeckBuilder();
+		buildDecks(numberOfDecks);
+		//buildGameStack();
+	}
 	
 	public DeckController(Map<String, GameZone> gameZones) {
 		deckBuilder = new DeckBuilder();
@@ -37,7 +43,7 @@ public class DeckController {
 		
 		
 		setCardPoints(gameZones.get("deckZone").getZoneCenterPoint());
-		//System.out.println("From DeckController "+ " - Cards in Memory - " + gameStack.peek().getCardsInMemory());
+		
 	
 	}
 	
@@ -46,37 +52,24 @@ public class DeckController {
 	}
 	
 	//The Dealer deals 1 card down to self then 1 card up to player, 1 card up to self and 1 card up to player
-	public void initGame(PlayerController playerController) {
-		this.playerController = playerController;
-		//deal one Card to player
-		
-		if(!firstRoundDealt) {
-		
-			firstRoundDealt = true;
-			((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Player"), gameStack, "up");
-			
-			animationController.animateCard(playerController.getPlayer("Player").getHand().getLastCardAdded(), ((DealtCardZone)gameZones.get("playerHandZone")).getNextZone().getCardHolderLocation());
-		
-			//((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Dealer"), gameStack, "down");
-			//animationController.animateCard(playerController.getPlayer("Player").getHand().getLastCardAdded(), ((DealtCardZone)gameZones.get("dealerHandZone")).getNextZone().getCardHolderLocation());
-			
-			playerController.getPlayer("Player").setHasHand(true);
-		}
-		
-	    
-		
-		//((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Dealer"), gameStack, "down");
-		//animationController.animateCard(playerController.getPlayer("Player").getHand().getLastCardAdded(), ((DealtCardZone)gameZones.get("dealerHandZone")).getNextZone().getCardHolderLocation());
-		//((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Player"), gameStack, "up");
-		//animationController.animateCard(playerController.getPlayer("Player").getHand().getLastCardAdded(), ((DealtCardZone)gameZones.get("playerHandZone")).getNextZone().getCardHolderLocation());
-		//((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Dealer"), gameStack, "up");
-		//animationController.animateCard(playerController.getPlayer("Player").getHand().getLastCardAdded(), ((DealtCardZone)gameZones.get("dealerHandZone")).getNextZone().getCardHolderLocation());
+	public void initGame() {
 		
 		
-//		for(PlayerEntity p : playerController.getPlayerList()) {
-//			p.getHand().printHand();
+//		if(!firstRoundDealt) {
+//		
+//			firstRoundDealt = true;
+//			((ComputerDealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Player"), gameStack, "up");
+//			
+//			animationController.animateCard(playerController.getPlayer("Player").getHand().getLastCardAdded(), ((DealtCardZone)gameZones.get("playerHandZone")).getNextZone().getCardHolderLocation());
+//		
+//			//((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Dealer"), gameStack, "down");
+//			//animationController.animateCard(playerController.getPlayer("Player").getHand().getLastCardAdded(), ((DealtCardZone)gameZones.get("dealerHandZone")).getNextZone().getCardHolderLocation());
+//			
+//			playerController.getPlayer("Player").setHasHand(true);
 //		}
 		
+	    
+
 	}
 	
 	public void setCardPoints(Point deckZoneCenterPoint) {
@@ -131,16 +124,15 @@ public class DeckController {
 		
 		decks = new HashMap<>();
 		for(int d = 0; d < numOfDecks; d++) {
-			System.out.println("calling build");
-			
+		
 			Deck newDeck = deckBuilder.generateStandardDeck().shuffle().build();
 			mainGameStack.addAll(newDeck.getCardsInDeck());
 			decks.put(Integer.valueOf(d), newDeck);
 			newDeck.printDeckToConsole();
 		}
 		
-		System.out.println(mainGameStack.size());
-		System.out.printf("game stack has: %d cards%n", mainGameStack.size());
+		
+		//System.out.printf("game stack has: %d cards%n", mainGameStack.size());
 		
 		
 	}
@@ -161,6 +153,11 @@ public class DeckController {
 	
 	public Card lookAtTopCard() {
 		return topCard;
+	}
+	
+
+	public Stack<Card> getMainGameStack() {
+		return mainGameStack;
 	}
 	
 	//DECK UTILITY METHODS

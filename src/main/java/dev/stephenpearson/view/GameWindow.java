@@ -3,121 +3,101 @@ package dev.stephenpearson.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.function.Consumer;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import dev.stephenpearson.controller.GUIController;
-import dev.stephenpearson.model.GameZone;
-import dev.stephenpearson.model.PlayerControlPanel;
-import dev.stephenpearson.model.Renderable;
-import dev.stephenpearson.model.TextAreas;
+import dev.stephenpearson.model.State;
+import dev.stephenpearson.model.State.StateEnum;
 
 
-public class GameWindow extends JPanel{
+public class GameWindow extends JPanel implements StateObserver{
 	
 	private static final int PANEL_WIDTH = 800;
 	private static final int PANEL_HEIGHT = 800;
+	private Consumer<Void> onButtonClick;
+
+	private static JFrame windowFrame;
 	
-	private GUI gui;
-	private PlayerControlPanel playerControlPanel;
-	
-	private List<Renderable> renderObjects = new ArrayList<>();
-	private static Stack<Renderable> renderStack = new Stack<>();
+	private State currentGameState;
 	
 	
 
 	
-	public GameWindow() {
-
+	public GameWindow(State currentGameState, Consumer<Void> onButtonClick) {
+		this.currentGameState = currentGameState;
+		this.onButtonClick = onButtonClick;
 		setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
 		setLayout(null);
 		
+		windowFrame = new JFrame();
+		windowFrame.setResizable(false);
+		windowFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		windowFrame.add(this);
+		
+		windowFrame.pack();
+		windowFrame.setLocationRelativeTo(null);
+		windowFrame.setVisible(true);
+		
+	}
+	
+	
 
-	}
-	
-	public void addGUI(GUI gui) {
-		this.gui = gui;
-		//System.out.println("init gui");
-		initInterface();
-	}
-	
-	public void initInterface() {
-		
-		//System.out.println("init gui");
-		gui.getPlayerControlPanel().getButtonMap().forEach((String,JButton) -> {
-			add(JButton);
-		});
-		
-		gui.getTextAreas().getTextAreasMap().forEach((String,JTextArea) -> {
-			add(JTextArea);
-		});
-	}
-	
 	public void render() {
 		repaint();
 	}
 	
-	public void addRenderObject(Renderable r) {
-		if(!renderObjects.contains(r)) {
-			renderObjects.add(r);
-		}
-		
-		renderStack.add(r);
-	}
 	
-	public void passRenderObjects(List<Renderable> r) {
+	@Override
+    public void onStateChanged(State newState) {
+        this.currentGameState = newState;
+        removeAll();
+        repaint();
+    }
+	
+	
 
-		for(Renderable renderObjectToAdd : r) {
-			if(!renderObjects.contains(renderObjectToAdd)) {
-				renderObjects.add(renderObjectToAdd);
-			}
-		}
-		
-		for(Renderable renderObjectToAdd : r) {
-			renderStack.add(renderObjectToAdd);
-		}
-	}
-	
-	public void updateRenderList(List<Renderable> renderObjects) {
-		this.renderObjects = renderObjects;
-	}
 	
 	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		g.setColor(new Color(78, 115, 96));
-		//Graphics2D g2d = (Graphics2D) g;
-		
-		//Color[] colors = {new Color(78, 115, 96), new Color(36, 41, 39)};
-		//Point2D point = new Point2D.Float(300,400);
-		//float[] dist = {0.0f, 0.2f, 1.0f};
-		//RadialGradientPaint rgp1 = new RadialGradientPaint(point,0.5f * 300,dist,colors);
-		//GradientPaint gp1 = new GradientPaint(0, 0, new Color(78, 115, 96), 600, 800, new Color(36, 41, 39));  
-		 //g2d.setPaint(gp1);  
-		//g.fillRect(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
-		g.fillRect(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
-		
-		//card color
-//		g.setColor(new Color(233, 237, 245));
+		System.out.println(currentGameState.getState().name());
 		
 		
-		//drop shadow color
-		g.setColor(new Color(34, 35, 36));
-		for(Renderable r : renderObjects) {
+		switch(currentGameState.getState()) {
+		
+		case MENU:
+		    removeAll();
+		    g.setColor(new Color(80,107,70));
+		    g.fillRect(0, 0, this.getWidth(), this.getHeight());
+		    JButton button = new JButton("start game");
+		    button.setBounds(getWidth()/2 - 100, getHeight()/2 - 50, 200, 100);
 
-			//turn off printing gamezones
-			if(r.getClass() != GameZone.class) {
-				r.draw(g); 
-			}
-			r.draw(g); 
+		    button.addActionListener(e -> {
+		    	onButtonClick.accept(null);
+		    	
+		    });
+
+		    add(button);
+		   
+	
+		    break;
+		
+		case GAME:
+			g.setColor(Color.BLUE);
+			g.fillRect(0, 0, this.getWidth(), this.getHeight());
+			System.out.println("game state");
+			break;
+			
+		default:
+			System.out.println("error occured");
+			break;
 		}
 		
-//		for(int i = 0; i < renderStack.size(); i++) {
-//			renderStack.pop().draw(g);
-//		}
+		
 	}
 
 	

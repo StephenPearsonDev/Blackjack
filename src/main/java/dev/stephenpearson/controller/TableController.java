@@ -3,22 +3,41 @@ package dev.stephenpearson.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.stephenpearson.model.ComputerDealer;
 import dev.stephenpearson.model.DealtCardZone;
 import dev.stephenpearson.model.GameZone;
+import dev.stephenpearson.model.HumanPlayer;
+import dev.stephenpearson.model.PlayerEntity;
+import dev.stephenpearson.model.State;
 
 public class TableController {
 	
 	private static DeckController deckController;
-	private static PlayerController playerController;
+
 	private AnimationController animationController;
 	private static Map<String, GameZone> gameZones;
+	private static PlayerEntity humanPlayer;
+	private static PlayerEntity computerDealer;
+	private State currentGameState;
+	private String[] zoneNames = new String[] {"deck","graveyard","dealerHand","playerHand","bank", "chipStack", "betStack"};
+	
+	
 	
 	
 	   
-	public TableController() {
+	public TableController(State currentGameState) {
+		
+		this.currentGameState = currentGameState;
 		initZones();
-		deckController = new DeckController(gameZones);
-		playerController = new PlayerController(gameZones);
+		//deckController = new DeckController(gameZones);
+
+	}
+	
+	public void init() {
+		
+		deckController = new DeckController(4);
+		humanPlayer = new HumanPlayer();
+		computerDealer = new ComputerDealer(deckController.getMainGameStack());
 		
 		
 	}
@@ -31,40 +50,11 @@ public class TableController {
 	public void initZones() {
 		gameZones = new HashMap<>();
 		
-		GameZone deck = new GameZone("deckZone");
-		gameZones.put(deck.getZoneName(), deck);
-		
-		GameZone burntCards = new GameZone("burntCards");
-		gameZones.put(burntCards.getZoneName(), burntCards);
-		
-		GameZone gameZone = new GameZone("gameZone");
-		gameZones.put(gameZone.getZoneName(), gameZone);
-	
-//		GameZone dealerHand = new GameZone("dealerHandZone");
-//		gameZones.put(dealerHand.getZoneName(), dealerHand);
-//		
-//		GameZone playerHand = new GameZone("playerHandZone");
-//		gameZones.put(playerHand.getZoneName(), playerHand);
-		
-		
-		GameZone chipStack = new GameZone("chipStack");
-		gameZones.put(chipStack.getZoneName(), chipStack);
-		
-		GameZone betStack = new GameZone("betStack");
-		gameZones.put(betStack.getZoneName(), betStack);
-		
-		GameZone dealerHandZone = new DealtCardZone("dealerHandZone");
-		gameZones.put(dealerHandZone.getZoneName(), dealerHandZone);
-		
-		GameZone playerHandZone = new DealtCardZone("playerHandZone");
-		gameZones.put(playerHandZone.getZoneName(), playerHandZone);
-		
-	
+		for(String s : zoneNames) {
+			gameZones.put(s, new GameZone(s));
+		}
 	}
 	
-	public void update() {
-		playerController.update();
-	}
 	
 	public Map<String, GameZone> getGameZones() {
 		return gameZones;
@@ -83,10 +73,23 @@ public class TableController {
 	public DeckController getDeckController() {
 		return deckController;
 	}
-	
-	public PlayerController getPlayerController() {
-		return playerController;
+
+	public PlayerEntity getHumanPlayer() {
+		return humanPlayer;
 	}
+
+	public void setHumanPlayer(PlayerEntity humanPlayer) {
+		TableController.humanPlayer = humanPlayer;
+	}
+
+	public PlayerEntity getComputerDealer() {
+		return computerDealer;
+	}
+
+	public void setComputerDealer(PlayerEntity computerDealer) {
+		TableController.computerDealer = computerDealer;
+	}
+	
 	
 	
 

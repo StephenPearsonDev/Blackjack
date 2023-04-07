@@ -4,8 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import dev.stephenpearson.model.Dealer;
-import dev.stephenpearson.model.Player;
+import dev.stephenpearson.model.ComputerDealer;
+import dev.stephenpearson.model.HumanPlayer;
 
 public class InputHandler implements MouseListener {
 	
@@ -26,22 +26,7 @@ public class InputHandler implements MouseListener {
 	
 	public void handleBetInput(int betAmount) {
 		
-		
-		
-		switch(betAmount) {
-		case 10:
-			((Player)tableController.getPlayerController().getPlayer("Player")).getPlayerBank().decreaseBank(betAmount);
-			break;
-		case 20:
-			((Player)tableController.getPlayerController().getPlayer("Player")).getPlayerBank().decreaseBank(betAmount);
-			break;
-		case 50:
-			((Player)tableController.getPlayerController().getPlayer("Player")).getPlayerBank().decreaseBank(betAmount);
-			break;
-		case 100:
-			((Player)tableController.getPlayerController().getPlayer("Player")).getPlayerBank().decreaseBank(betAmount);
-			break;
-		}
+		((HumanPlayer)tableController.getHumanPlayer()).getPlayerBank().decreaseBank(betAmount);
 		
 	}
 

@@ -1,7 +1,7 @@
 package dev.stephenpearson.controller;
 
 import dev.stephenpearson.model.GameState;
-import dev.stephenpearson.model.Player;
+import dev.stephenpearson.model.HumanPlayer;
 
 public class GameStateController {
 	
@@ -19,15 +19,7 @@ public class GameStateController {
 		return gameState;
 	}
 	
-	public void update(Player player) {
-		if(player.getPlayerBank().isBetPlaced()) {
-			if(!player.hasHand()) {
-				gameState = GameState.DEALING_ROUND;
-			}
-			
-		}
-				
-	}
+	
 	
 
 }

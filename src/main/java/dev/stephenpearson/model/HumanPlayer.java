@@ -1,11 +1,11 @@
 package dev.stephenpearson.model;
 
-public class Player extends PlayerEntity {
+public class HumanPlayer extends PlayerEntity {
 	
 	private boolean waitingForBet = true;
 	private PlayerBank playerBank;
 	
-	public Player() {
+	public HumanPlayer() {
 		
 		playerBank = new PlayerBank(1000);
 
