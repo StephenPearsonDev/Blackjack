@@ -9,13 +9,14 @@ import dev.stephenpearson.model.ComputerDealer;
 import dev.stephenpearson.model.DealtCardZone;
 import dev.stephenpearson.model.GameZone;
 import dev.stephenpearson.model.HumanPlayer;
+import dev.stephenpearson.model.MenuMessage;
 import dev.stephenpearson.model.PlayerEntity;
 import dev.stephenpearson.model.State;
 
 public class TableController {
 	
 	private static DeckController deckController;
-
+	private MenuMessage menuMessage;
 	private AnimationController animationController;
 	private static Map<String, GameZone> gameZones;
 	private static PlayerEntity humanPlayer;

@@ -17,6 +17,7 @@ public class BlackJack implements Runnable {
 	}
 	
 	public void initGame() {
+	
 		gameController = new GameController();
 		gameThread = new Thread(gameController);
 		gameThread.start();
@@ -28,7 +29,7 @@ public class BlackJack implements Runnable {
 	@Override
 	public void run() {
 		
-		System.out.println("main controller thread started");
+
 	}
 
 }

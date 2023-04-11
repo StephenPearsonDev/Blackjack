@@ -17,7 +17,7 @@ import dev.stephenpearson.model.State.StateEnum;
 import dev.stephenpearson.view.Button.ButtonAction;
 
 
-public class GameWindow extends JPanel implements StateObserver{
+public class GameWindow extends JPanel implements StateObserver, GuiObserver{
 	
 	private static final int PANEL_WIDTH = 800;
 	private static final int PANEL_HEIGHT = 800;
@@ -28,10 +28,7 @@ public class GameWindow extends JPanel implements StateObserver{
 	
 	private GUI gui;
 	
-	
-	
 
-	
 	public GameWindow(State currentGameState, Consumer<ButtonAction> onButtonClick) {
 		this.currentGameState = currentGameState;
 		
@@ -48,7 +45,7 @@ public class GameWindow extends JPanel implements StateObserver{
 		windowFrame.pack();
 		windowFrame.setLocationRelativeTo(null);
 		windowFrame.setVisible(true);
-		gui = new GUI(onButtonClick);
+		updateButtons();
 		
 	}
 	
@@ -60,10 +57,47 @@ public class GameWindow extends JPanel implements StateObserver{
 	
 	@Override
     public void onStateChanged(State newState) {
+		System.out.println("onStateChanged triggered");
         this.currentGameState = newState;
-        removeAll();
-        repaint();
+        updateButtons();
     }
+	
+	@Override
+	public void onGuiUpdate() {
+		System.out.println("ongyu triggered");
+		repaint();
+	}
+	
+	private void updateButtons() {
+	    removeAll();
+
+	    System.out.println("Updating buttons...");
+
+	    switch (currentGameState.getState()) {
+	        case MENU:
+	            for (Button b : gui.getMenuButtons()) {
+	                System.out.println("Adding menu button: " + b.getText());
+	                add(b);
+	            }
+	            break;
+
+	        case GAME:
+	            for (Button b : gui.getGameButtons()) {
+	                System.out.println("Adding game button: " + b.getText());
+	                add(b);
+	            }
+	            break;
+
+	        default:
+	            System.out.println("error occurred");
+	            break;
+	    }
+
+	    revalidate();
+	    repaint();
+	}
+
+
 	
 	
 
@@ -71,8 +105,9 @@ public class GameWindow extends JPanel implements StateObserver{
 	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		System.out.println(currentGameState.getState().name());
 		
+		g.setColor(new Color(75,79,76));
+		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		
 		switch(currentGameState.getState()) {
 		
@@ -80,10 +115,8 @@ public class GameWindow extends JPanel implements StateObserver{
 	
 			g.setColor(new Color(75,79,76));
 		    g.fillRect(0, 0, this.getWidth(), this.getHeight());
+			gui.paintMenuElements(g);
 			
-			for(Button b : gui.getMenuButtons()) {
-				add(b);
-			}
 
 		    break;
 		
@@ -91,11 +124,11 @@ public class GameWindow extends JPanel implements StateObserver{
 			g.setColor(new Color(53,101,77));
 			g.fillRect(0, 0, this.getWidth(), this.getHeight());
 			
-			for(Button b : gui.getGameButtons()) {
-				add(b);
-			}
 			
-			System.out.println("state changed");
+			gui.paintMenus(g);
+			gui.paintTableElements(g);
+			
+		
 			
 			break;
 			
@@ -106,6 +139,10 @@ public class GameWindow extends JPanel implements StateObserver{
 		
 		
 	}
+	public GUI getGui() {
+		return gui;
+	}
+
 
 	
 
