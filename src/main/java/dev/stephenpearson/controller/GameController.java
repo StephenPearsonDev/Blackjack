@@ -23,13 +23,17 @@ public class GameController implements Runnable {
 	private static StateController stateController;
 	private static Thread gameThread;
 	private static GameWindow gameWindow;
-	private static State[] states = new State[] {new MenuState(), new GameState()};
+	private static State[] states;
+	
+	private static State currentGameState;
 	
 	
 	
 
 	public GameController() {
 		
+		states = new State[] {new MenuState(), new GameState()};
+		currentGameState = states[0];
 		stateController = new StateController();
 		renderController = new RenderController();
 		tableController = new TableController(stateController.getCurrentGameState());
@@ -58,24 +62,30 @@ public class GameController implements Runnable {
 	public void initGame() {
 		initGameZones();
 		tableController.init();
-		gameWindow = new GameWindow(states[0],buttonAction -> {
+		
+		gameWindow = new GameWindow(currentGameState,buttonAction -> {
 	        switch(buttonAction) {
 	        
 	        case EXIT:
 	        	System.exit(0);
 	        	break;
 	        
-	        case OPTIONS:
-	        	System.out.println("options");
+	        case START:
+	        	currentGameState = states[1];
+	        	stateController.changeState(currentGameState);
 	        	break;
 	        
-	        case GAME:
-	        	stateController.changeState(states[1]);
-	        	tableController.requestBet();
+	        case HIT:
+	        	System.out.println("hit");
 	        	break;
 	        
-	        case BET10:
-	        	
+	        case STAND:
+	        	System.out.println("stand");
+	        case RESET:
+	        	System.out.println("reset");
+	        case MENU:
+	        	currentGameState = states[0];
+	        	stateController.changeState(currentGameState);
 	        	
 	        
 	        default:
