@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.stephenpearson.model.Card;
+import dev.stephenpearson.model.ComputerDealer;
 import dev.stephenpearson.model.GameModel;
 import dev.stephenpearson.model.GameState;
 import dev.stephenpearson.model.HumanPlayer;
@@ -14,31 +15,40 @@ import dev.stephenpearson.model.MenuMessage;
 import dev.stephenpearson.model.MenuState;
 import dev.stephenpearson.model.Renderable;
 import dev.stephenpearson.model.State;
+import dev.stephenpearson.view.Button.ButtonAction;
 import dev.stephenpearson.view.GameWindow;
 
 public class GameController implements Runnable {
-
+	
+	//Message boxes
+	private static BetPotMessage betPotMessage;
 	private static MenuMessage menuMessage;
+	private static PlayerBankMessage playerBankMessage;
+	
+	private static SpriteController spriteController;
 	private static TableController tableController;
 	private static RenderController renderController;
 	private static StateController stateController;
-	private static Thread gameThread;
 	private static GameWindow gameWindow;
+	private static BetPot betPot;
 	private static State[] states;
 	
 	private static State currentGameState;
 	
-	
+	boolean firstBetPlaced = false;
 	
 
 	public GameController() {
-		System.out.println("gameController made");
+
 		states = new State[] {new MenuState(), new GameState()};
 		currentGameState = states[0];
+		spriteController = new SpriteController();
 		stateController = new StateController();
 		renderController = new RenderController();
 		tableController = new TableController(stateController.getCurrentGameState());
 		menuMessage = new MenuMessage();
+		betPotMessage = new BetPotMessage();
+		playerBankMessage = new PlayerBankMessage();
 		
 	
 	}
@@ -47,10 +57,7 @@ public class GameController implements Runnable {
 	
 
 
-	public void initGameZones() {
-		tableController.getGameZones().forEach((S, G) -> renderController.addRenderObjectToList(G));
-	}
-
+	
 	
 	public void render() {
 		gameWindow.repaint();
@@ -59,7 +66,7 @@ public class GameController implements Runnable {
 	
 	public void initGame() {
 		System.out.println("init called");
-		initGameZones();
+	
 		tableController.init();
 		
 		gameWindow = new GameWindow(currentGameState,buttonAction -> {
@@ -72,32 +79,89 @@ public class GameController implements Runnable {
 	        case START:
 	        	currentGameState = states[1];
 	        	stateController.changeState(currentGameState);
+	        	updateMenuMessage(menuMessage.getDefaultStartMessage());
 	        	break;
 	        
 	        case HIT:
 	        	System.out.println("hit");
-	        	updateMenuMessage("hello");
+	        	
+				if(!firstBetPlaced) {
+	        		updateMenuMessage(menuMessage.getDefaultStartMessage());
+	        	} else {
+	        		
+	        		tableController.progressDealer(ButtonAction.HIT);
+	        		gameWindow.getGui().updateRenderableCards(tableController.getHumanPlayer().getHand().getCardsInHand());
+	        		gameWindow.getGui().setDrawCards(true);
+	        	}
+	        	
 	        	break;
 	        
 	        case STAND:
 	        	System.out.println("stand");
 	        	break;
 	        case RESET:
+	        	resetGame();
+	        	
 	        	System.out.println("reset");
 	        	break;
 	        case MENU:
+	        	resetGame();
 	        	currentGameState = states[0];
 	        	stateController.changeState(currentGameState);
 	        	break;
+	        case BET10:
+	        	if(tableController.getBetPot().getSizeOfPot() <= tableController.getHumanPlayer().getPlayerBank().getBankSize() - 10) {
+	        		tableController.getBetPot().increasePot(10);
+	        		updateBetPotMessage(tableController.getBetPot().getPotString());
+	        	} else {
+	        		updateMenuMessage("Not enough money place $10 bet. Try a smaller bet size or clear bet");
+	        	}
 	        	
+	        	
+	        	break;
+	        case BET50:
+	        	
+	        	if(tableController.getBetPot().getSizeOfPot() <= tableController.getHumanPlayer().getPlayerBank().getBankSize() - 50) {
+	        		tableController.getBetPot().increasePot(50);
+	        		updateBetPotMessage(tableController.getBetPot().getPotString());
+	        	} else {
+	        		updateMenuMessage("Not enough money place $50 bet. Try a smaller bet size or clear bet");
+	        	}
+	        	break;
+	        case CLEARBET:
+	        	tableController.getBetPot().clearPot();
+	        	updateBetPotMessage(tableController.getBetPot().getPotString());
+	        	updateMenuMessage(menuMessage.getDefaultStartMessage());
+	        	break;
+	        	
+	        case PLACEBET:
+	        	System.out.println("place bet");
+	        	if(tableController.getBetPot().getSizeOfPot() > 0) {
+	        		firstBetPlaced = true;
+	        		System.out.println(tableController.getBetPot().getSizeOfPot());
+	        		tableController.getHumanPlayer().getPlayerBank().decreaseBank(tableController.getBetPot().getSizeOfPot());
+	        		updatePlayerBankMessage(tableController.getHumanPlayer().getPlayerBank().getBankString());
+	        		tableController.getBetPot().clearPot();
+	        		updateBetPotMessage(tableController.getBetPot().getPotString());
+	        		updateMenuMessage("Hit or stand to continue");
+	        		tableController.wakeDealer();
+	        		gameWindow.getGui().updateRenderableCards(tableController.getComputerDealer().getHand().getCardsInHand());
+	        		gameWindow.getGui().updateRenderableCards(tableController.getHumanPlayer().getHand().getCardsInHand());
+	        		gameWindow.getGui().setDrawCards(true);
+	        		System.out.println("Value of player hand is: " + tableController.getHumanPlayer().getHand().getHandValue());
+	        		System.out.println("Value of dealer hand is: " + tableController.getComputerDealer().getHand().getHandValue());
+	        		tableController.playRound();
+	        	}
+	        	break;
 	        
 	        default:
 	        	
 	        	break;
 	        } 
 	    });
-
-	
+		
+		playerBankMessage.addObserver(gameWindow.getGui());
+		betPotMessage.addObserver(gameWindow.getGui());
 		menuMessage.addObserver(gameWindow.getGui());
 		gameWindow.getGui().addGuiObserver(gameWindow);
 		stateController.addObserver(gameWindow);
@@ -109,6 +173,14 @@ public class GameController implements Runnable {
 	public void updateMenuMessage(String message) {
 		menuMessage.setMessage(message);
 	}
+	
+	public void updateBetPotMessage(String message) {
+		betPotMessage.setMessage(message);
+	}
+	
+	public void updatePlayerBankMessage(String message) {
+		playerBankMessage.setMessage(message);
+	}
 
 
 
@@ -116,10 +188,25 @@ public class GameController implements Runnable {
 
 	@Override
 	public void run() {
-		
-		initGame();
-		
+		initGame();	
 	}
+	
+	public void resetGame() {
+		
+		
+	gameWindow.getGui().init();	
+	tableController.init();
+	updateMenuMessage(menuMessage.getDefaultStartMessage());
+	updateBetPotMessage(tableController.getBetPot().getPotString());
+	updatePlayerBankMessage(tableController.getHumanPlayer().getPlayerBank().getBankString());
+	}
+
+
+
+
+
+
+
 	
 	
 }

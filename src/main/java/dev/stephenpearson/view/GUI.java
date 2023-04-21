@@ -9,48 +9,76 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
+import dev.stephenpearson.controller.BetPotMessage;
+import dev.stephenpearson.controller.BetPotMessageObserver;
+import dev.stephenpearson.controller.PlayerBankMessage;
+import dev.stephenpearson.controller.PlayerBankMessageObserver;
+import dev.stephenpearson.model.Card;
 import dev.stephenpearson.model.Constants;
 import dev.stephenpearson.model.MenuMessage;
 import dev.stephenpearson.model.MenuMessageObserver;
+import dev.stephenpearson.model.Renderable;
 import dev.stephenpearson.view.Button.ButtonAction;
 
 
 
-public class GUI implements MenuMessageObserver{
+public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBankMessageObserver{
 	
 	private String topMenuString;
+	private String betPotMessageString;
+	private String playerBankMessageString;
+	
 	private Rectangle topMenu;
 	private Rectangle bottomMenu;
+	private Rectangle betPotMessageZone;
+	private Rectangle playerBankMessageZone;
+	
 	private List<Button> menuButtons;
 	private List<Button> gameButtons;
 	
 	private Button exitButton;
 	private Button startButton;
 	private Button resetButton;
+	private Button returnToMenuButton;
+	
+	//bottom row buttons
 	private Button hitButton;
 	private Button standButton;
-	private Button returnToMenuButton;
+	private Button bet10;
+	private Button bet50;
+	private Button placeBet;
+	private Button clearBet;
 	private Button splitButton;
 	private Button doubleButton;
+	
+	
 	private int buttonWidth = Constants.ViewConstants.BUTTON_WIDTH;
 	private int buttonHeight = Constants.ViewConstants.BUTTON_HEIGHT;
 	
 	private Consumer<ButtonAction> onButtonClick;
 	private List<GuiObserver> guiObservers = new ArrayList<>();
+	
+	private boolean drawCards = false;
+	private List<Renderable> cardsOnScreen = new ArrayList<>();
 
 	
 	public GUI(Consumer<ButtonAction> onButtonClick) {
-		
-		topMenuString = "Place a bet to start playing.";
-		topMenu = new Rectangle(0,0,Constants.ViewConstants.PANEL_WIDTH, 50);
-		bottomMenu = new Rectangle(0,Constants.ViewConstants.PANEL_HEIGHT-50,Constants.ViewConstants.PANEL_WIDTH, 50);
+		betPotMessageString = "0";
+		playerBankMessageString = "1000";
 		menuButtons = new ArrayList<>();
 		gameButtons = new ArrayList<>();
-		this.onButtonClick = onButtonClick;
 		initButtons();
+		topMenu = new Rectangle(0,0,Constants.ViewConstants.PANEL_WIDTH, 50);
+		bottomMenu = new Rectangle(0,Constants.ViewConstants.PANEL_HEIGHT-100,Constants.ViewConstants.PANEL_WIDTH, 100);
+		betPotMessageZone = new Rectangle(bet10.getX(), bottomMenu.y,bet10.getWidth()*4,100);
+		playerBankMessageZone = new Rectangle(0, bottomMenu.y,bet10.getWidth()*4,100);
+		
+		this.onButtonClick = onButtonClick;
+		
 		initActionListeners();
 	}
 	
@@ -62,6 +90,11 @@ public class GUI implements MenuMessageObserver{
 		//bottom menu
 		hitButton = new Button(0,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT,buttonWidth,buttonHeight,"Hit");
 		standButton = new Button(hitButton.getBounds().x+hitButton.getBounds().width,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT,buttonWidth,buttonHeight,"Stand");
+		placeBet = new Button(Constants.ViewConstants.PANEL_WIDTH - Constants.ViewConstants.BUTTON_WIDTH,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT, buttonWidth, buttonHeight,"Place bet");
+		clearBet = new Button(Constants.ViewConstants.PANEL_WIDTH - Constants.ViewConstants.BUTTON_WIDTH * 2,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT, buttonWidth, buttonHeight,"Clear bet");
+		
+		bet50 = new Button(Constants.ViewConstants.PANEL_WIDTH - Constants.ViewConstants.BUTTON_WIDTH * 3,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT, buttonWidth, buttonHeight,"Bet 50");
+		bet10 = new Button(Constants.ViewConstants.PANEL_WIDTH - Constants.ViewConstants.BUTTON_WIDTH * 4,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT, buttonWidth, buttonHeight,"Bet 10");
 		
 		//top menu
 		resetButton = new Button(Constants.ViewConstants.PANEL_WIDTH-Constants.ViewConstants.BUTTON_WIDTH,0,buttonWidth,buttonHeight,"Reset");
@@ -74,21 +107,22 @@ public class GUI implements MenuMessageObserver{
 		gameButtons.add(standButton);
 		gameButtons.add(resetButton);
 		gameButtons.add(returnToMenuButton);
+		gameButtons.add(bet10);
+		gameButtons.add(bet50);
+		gameButtons.add(clearBet);
+		gameButtons.add(placeBet);
+		
 		
 	}
 	
 	public void initActionListeners() {
 		
 		for(Button b : menuButtons) {
-			
 			b.addActionListener(e -> onButtonClick.accept(b.getButtonAction()));
-	
 		}
 		
-		for(Button b : gameButtons) {
-			
+		for(Button b : gameButtons) {	
 			b.addActionListener(e -> onButtonClick.accept(b.getButtonAction()));
-	
 		}
 		
 	}
@@ -114,21 +148,39 @@ public class GUI implements MenuMessageObserver{
 		g.setColor(new Color(229,229,229));
 		g.fillRect(topMenu.x, topMenu.y, topMenu.width, topMenu.height);
 		g.fillRect(bottomMenu.x, bottomMenu.y, bottomMenu.width, bottomMenu.height);
+		g.setColor(new Color(188,186,217));
+		g.fillRect(betPotMessageZone.x, betPotMessageZone.y, betPotMessageZone.width, betPotMessageZone.height/2);
+		g.setColor(new Color(156,154,177));
+		g.fillRect(playerBankMessageZone.x, playerBankMessageZone.y, playerBankMessageZone.width, playerBankMessageZone.height/2);
 		
 		Graphics2D g2d = (Graphics2D) g;
-		g2d.setFont(new Font("system", Font.BOLD, 20));
+		g2d.setFont(new Font("system", Font.BOLD, 15));
+		
+		
 		g2d.setColor(Color.BLACK);
 		g2d.setRenderingHint(
 		        RenderingHints.KEY_TEXT_ANTIALIASING,
 		        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		
+		
 		Rectangle2D topMenuStringBounds = g2d.getFontMetrics().getStringBounds(topMenuString, g2d);
 		g2d.drawString(topMenuString, (int) (Constants.ViewConstants.PANEL_CENTER_X - topMenuStringBounds.getWidth()/2), (int) (topMenuStringBounds.getHeight()/2) + topMenu.height/2);
-
+		g2d.setFont(new Font("system", Font.BOLD, 25));
+		Rectangle2D betPotStringBounds = g2d.getFontMetrics().getStringBounds(betPotMessageString,g2d);
+		g2d.drawString(betPotMessageString, (int) (betPotMessageZone.getCenterX() - betPotStringBounds.getWidth()/2), (int) (betPotMessageZone.getCenterY() - betPotStringBounds.getHeight()/2));
+		g2d.setFont(new Font("system", Font.BOLD, 25));
+		Rectangle2D playerBankStringBounds = g2d.getFontMetrics().getStringBounds(playerBankMessageString,g2d);
+		g2d.drawString(playerBankMessageString, (int) (playerBankMessageZone.getCenterX() - playerBankStringBounds.getWidth()/2), (int) (playerBankMessageZone.getCenterY() - playerBankStringBounds.getHeight()/2));
+		
 	}
 	
 	public void paintTableElements(Graphics g) {
 		
-		
+		if(drawCards) {
+			for(Renderable r : cardsOnScreen) {
+				r.draw(g);
+			}
+		}	
 	}
 	
 	public void paintMenuElements(Graphics g) {
@@ -158,14 +210,7 @@ public class GUI implements MenuMessageObserver{
 		
 	}
 
-	@Override
-	public void update(MenuMessage menuMessage) {
-		topMenuString = menuMessage.getMessage();
-		System.out.println("test");
-		System.out.println(topMenuString);
-		notifyGuiObservers();
-		
-	}
+	
 	
 	public void addGuiObserver(GuiObserver observer) {
         guiObservers.add(observer);
@@ -180,6 +225,44 @@ public class GUI implements MenuMessageObserver{
             observer.onGuiUpdate();
         }
     }
+
+	@Override
+	public void update(BetPotMessage betPotMessage) {
+		betPotMessageString = betPotMessage.getMessage();
+		notifyGuiObservers();
+		
+	}
+	
+	@Override
+	public void update(MenuMessage menuMessage) {
+		topMenuString = menuMessage.getMessage();
+		notifyGuiObservers();
+		
+	}
+
+	@Override
+	public void update(PlayerBankMessage playerBankMessage) {
+		playerBankMessageString = playerBankMessage.getMessage();
+		notifyGuiObservers();
+		
+	}
+
+	public void setDrawCards(boolean drawCards) {
+		this.drawCards = drawCards;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> void updateRenderableCards(List<T> cards) {
+		
+		cardsOnScreen.addAll((Collection<? extends Renderable>) cards);
+		notifyGuiObservers();
+	}
+	
+	public void init() {
+		drawCards = false;
+		cardsOnScreen.clear();
+		notifyGuiObservers();
+	}
 	
 	}
 

@@ -5,6 +5,9 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+
+import dev.stephenpearson.controller.SpriteController;
 
 public class Card implements Renderable {
 	
@@ -13,6 +16,8 @@ public class Card implements Renderable {
 	private String cardString;
 	private int faceValue;
 	private Rectangle cardBounds;
+	private int x;
+	private int y;
 	private Color cardFrontColor = new Color(234, 234, 189);
 	private static int cardsInMemory = 0;
 	
@@ -21,8 +26,10 @@ public class Card implements Renderable {
 	private Point centerPoint;
 	private Point cornerPoint;
 	private Dimension cardDimensions;
-	private boolean topCard = false;
-	private boolean faceDown = true;
+	private boolean faceDown = false;
+	
+	private BufferedImage cardFrontImage;
+	private BufferedImage cardBackImage;
 	
 	public static enum Suit {
 		HEARTS,
@@ -66,6 +73,10 @@ public class Card implements Renderable {
 	}
 	
 	public Card(Suit s, Rank r) {
+		System.out.println(r.name()+"OF"+s.name());
+		cardFrontImage = SpriteController.getCardImageMap().get(r.name()+"OF"+s.name());
+		cardBackImage = SpriteController.getCardImageMap().get("CARDBACK");
+		
 		cardsInMemory++;
 		suit = s;
 		rank = r;
@@ -73,7 +84,7 @@ public class Card implements Renderable {
 		cardString =  rank.name().charAt(0) +  rank.name().substring(1).toLowerCase() + " of " + suit.name().toLowerCase();
 		//cardString =  rank.name()+ " of " + suit.name();
 		cardDimensions = new Dimension(100,140);
-		
+		cardBounds = new Rectangle(0,0,90,150);
 	}
 	
 	public void setInitPoints(Point deckZoneCenterPoint) {
@@ -82,7 +93,9 @@ public class Card implements Renderable {
 		cornerPoint = new Point(cardBounds.x, cardBounds.y);
 	}
 	
-	
+	public void setRank(Rank rank) {
+		this.rank = rank;
+	}
 	public Rank getRank() {
 		return rank;
 	}
@@ -129,16 +142,23 @@ public class Card implements Renderable {
 	public void draw(Graphics g) {
 		
 		if(faceDown) {
-			g.setColor(cardShadowColor);
-			g.fillRoundRect(cardBounds.x-3, cardBounds.y+5, cardBounds.width, cardBounds.height, 20 ,20);
-			g.setColor(cardBackColor);
-			g.fillRoundRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height, 20 ,20);
+			g.drawImage(cardBackImage, cardBounds.x, cardBounds.y, cardBackImage.getWidth()*5,cardBackImage.getHeight()*5, null);
 		} else {
-			g.setColor(cardShadowColor);
-			g.fillRoundRect(cardBounds.x-3, cardBounds.y+5, cardBounds.width, cardBounds.height, 20 ,20);
-			g.setColor(cardFrontColor);
-			g.fillRoundRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height, 20 ,20);
+			g.drawImage(cardFrontImage, cardBounds.x, cardBounds.y, cardFrontImage.getWidth()*5,cardFrontImage.getHeight()*5, null);
 		}
+		
+		
+//		if(faceDown) {
+//			g.setColor(cardShadowColor);
+//			g.fillRoundRect(cardBounds.x-3, cardBounds.y+5, cardBounds.width, cardBounds.height, 20 ,20);
+//			g.setColor(cardBackColor);
+//			g.fillRoundRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height, 20 ,20);
+//		} else {
+//			g.setColor(cardShadowColor);
+//			g.fillRoundRect(cardBounds.x-3, cardBounds.y+5, cardBounds.width, cardBounds.height, 20 ,20);
+//			g.setColor(cardFrontColor);
+//			g.fillRoundRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height, 20 ,20);
+//		}
 	
 		
 		
@@ -166,6 +186,30 @@ public class Card implements Renderable {
 	
 	public int getCardsInMemory() {
 		return cardsInMemory;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public void setY(int y) {
+		this.y = y;
+	}
+	
+	public void setXY(Rectangle xy) {
+		
+		this.x = xy.x;
+		this.y = xy.y;
+		cardBounds.x = this.x;
+		cardBounds.y = this.y;
 	}
 
 }

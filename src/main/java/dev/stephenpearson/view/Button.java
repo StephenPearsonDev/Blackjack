@@ -33,6 +33,10 @@ public class Button extends JButton {
 	    HIT("Hit"),
 	    STAND("Stand"),
 	    RESET("Reset"),
+	    BET10("Bet 10"),
+	    BET50("Bet 50"),
+	    PLACEBET("Place bet"),
+	    CLEARBET("Clear bet"),
 	    MENU("Menu");
 		
 		private String buttonText;
@@ -42,7 +46,7 @@ public class Button extends JButton {
 		}
 		
 		public static Optional<ButtonAction> getButtonAction(String buttonText) {
-
+		
 			return Arrays.stream(values())
                     .filter(action -> action.buttonText.equalsIgnoreCase(buttonText))
                     .findFirst();

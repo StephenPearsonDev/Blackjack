@@ -28,24 +28,21 @@ public class DeckController {
 	private static Map<String, GameZone> gameZones;
 	private boolean firstRoundDealt = false;
 	
-	public DeckController(int numberOfDecks) {
+	public DeckController() {
+		
+		
 		deckBuilder = new DeckBuilder();
-		buildDecks(numberOfDecks);
+		
+		init();
+		
 		//buildGameStack();
 	}
 	
-	public DeckController(Map<String, GameZone> gameZones) {
-		deckBuilder = new DeckBuilder();
-		this.gameZones = gameZones;
-		buildDecks(2);
-		buildGameStack();
-		topCard = gameStack.peek();
-		
-		
-		setCardPoints(gameZones.get("deckZone").getZoneCenterPoint());
-		
-	
+	public void init() {
+		buildDecks();
 	}
+	
+	
 	
 	public void passAnimationController(AnimationController animationController) {
 		this.animationController = animationController;
@@ -119,11 +116,11 @@ public class DeckController {
 
 	}
 	
-	public void buildDecks(int numOfDecks) {
+	public void buildDecks() {
 		
 		
 		decks = new HashMap<>();
-		for(int d = 0; d < numOfDecks; d++) {
+		for(int d = 0; d < 4; d++) {
 		
 			Deck newDeck = deckBuilder.generateStandardDeck().shuffle().build();
 			mainGameStack.addAll(newDeck.getCardsInDeck());

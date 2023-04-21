@@ -9,9 +9,9 @@ public abstract class PlayerEntity {
 	private String playerType;
 	private boolean hasHand = false;
 	
-	public PlayerEntity() {
+	public PlayerEntity(int zoneY) {
 		
-		hand = new Hand();
+		hand = new Hand(zoneY);
 		
 	}
 	

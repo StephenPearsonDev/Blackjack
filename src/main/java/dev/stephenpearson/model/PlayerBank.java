@@ -2,13 +2,17 @@ package dev.stephenpearson.model;
 
 public class PlayerBank {
 	
+	private int tempBankSize;
 	private int bankSize;
 	private boolean playerBroke = false;
 	private String bankString;
 	private boolean firstBetPlaced = false;
+	private boolean betPlaced = false;
+	
 	
 	public PlayerBank(int bankSize) {
 		this.bankSize = bankSize;
+		this.tempBankSize = bankSize;
 		bankString = String.valueOf(bankSize);
 	}
 	
@@ -18,23 +22,30 @@ public class PlayerBank {
 	
 	public void decreaseBank(int deduct) {
 		
-		if(bankSize>=deduct) {
-			if(!firstBetPlaced) {
-				firstBetPlaced = true;
-				bankSize -= deduct;
-				bankString = String.valueOf(bankSize);
-				
-				System.out.println("bet decreased - bank is: " + bankString);
-				if(bankSize <= 0) {
-					playerBroke = true;
-					System.out.println("player broke");
+		
+			if(bankSize>=deduct) {
+				if(!firstBetPlaced) {
+					
+					bankSize -= deduct;
+					bankString = String.valueOf(bankSize);
+					
+					System.out.println("bank decreased - bank is: " + bankString);
+					if(bankSize <= 0) {
+						playerBroke = true;
+						System.out.println("player broke");
+					}
 				}
+				
 			}
-			
-		}	
+		
+		
+		
+		
+		
+		
 	}
 	
-	public void increasBank(int increase) {
+	public void increaseBank(int increase) {
 		bankSize += increase;
 		bankString = String.valueOf(bankSize);
 	}
@@ -57,5 +68,4 @@ public class PlayerBank {
 	
 	
 	
-
 }

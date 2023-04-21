@@ -5,10 +5,9 @@ public class HumanPlayer extends PlayerEntity {
 	private boolean waitingForBet = true;
 	private PlayerBank playerBank;
 	
-	public HumanPlayer() {
-		
-		playerBank = new PlayerBank(1000);
-
+	public HumanPlayer(int cardZoneY) {
+		super(cardZoneY);
+		init();
 	}
 	
 	public PlayerBank getPlayerBank() {
@@ -29,6 +28,10 @@ public class HumanPlayer extends PlayerEntity {
 		if(playerBank.isBetPlaced()) {
 			waitingForBet = false;
 		}
+	}
+	
+	public void init() {
+		playerBank = new PlayerBank(1000);
 	}
 	
 	

@@ -5,6 +5,7 @@ import java.util.List;
 
 public class MenuMessage {
     private String message;
+    private static String defaultStartMessage = "Place a bet to start the game.";
     private List<MenuMessageObserver> observers;
 
     public MenuMessage() {
@@ -13,7 +14,6 @@ public class MenuMessage {
     }
 
     public void addObserver(MenuMessageObserver observer) {
-    	System.out.println("menu message add observer");
         observers.add(observer);
     }
 
@@ -36,4 +36,8 @@ public class MenuMessage {
             observer.update(this);
         }
     }
+
+	public String getDefaultStartMessage() {
+		return defaultStartMessage;
+	}
 }

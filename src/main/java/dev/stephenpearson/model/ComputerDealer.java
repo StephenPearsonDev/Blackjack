@@ -6,7 +6,8 @@ public class ComputerDealer extends PlayerEntity implements DealingStrategy {
 	
 	private Stack<Card> mainGameStack;
 	
-	public ComputerDealer(Stack<Card> mainGameStack) {
+	public ComputerDealer(Stack<Card> mainGameStack, int cardZoneY) {
+		super(cardZoneY);
 		this.setMainGameStack(mainGameStack);
 	}
 
@@ -23,6 +24,8 @@ public class ComputerDealer extends PlayerEntity implements DealingStrategy {
 	public void setMainGameStack(Stack<Card> mainGameStack) {
 		this.mainGameStack = mainGameStack;
 	}
+	
+	
 	
 	
 
