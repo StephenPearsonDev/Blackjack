@@ -8,10 +8,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import dev.stephenpearson.model.Card;
-import dev.stephenpearson.model.ComputerDealer;
-import dev.stephenpearson.model.DealtCardZone;
 import dev.stephenpearson.model.Deck;
-import dev.stephenpearson.model.GameZone;
 import dev.stephenpearson.model.HumanPlayer;
 import dev.stephenpearson.model.PlayerEntity;
 
@@ -25,47 +22,24 @@ public class DeckController {
 	
 	
 	private AnimationController animationController;
-	private static Map<String, GameZone> gameZones;
 	private boolean firstRoundDealt = false;
 	
 	public DeckController() {
 		
-		
 		deckBuilder = new DeckBuilder();
-		
 		init();
-		
-		//buildGameStack();
 	}
 	
 	public void init() {
 		buildDecks();
 	}
-	
-	
-	
+
 	public void passAnimationController(AnimationController animationController) {
 		this.animationController = animationController;
 	}
 	
-	//The Dealer deals 1 card down to self then 1 card up to player, 1 card up to self and 1 card up to player
+	
 	public void initGame() {
-		
-		
-//		if(!firstRoundDealt) {
-//		
-//			firstRoundDealt = true;
-//			((ComputerDealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Player"), gameStack, "up");
-//			
-//			animationController.animateCard(playerController.getPlayer("Player").getHand().getLastCardAdded(), ((DealtCardZone)gameZones.get("playerHandZone")).getNextZone().getCardHolderLocation());
-//		
-//			//((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Dealer"), gameStack, "down");
-//			//animationController.animateCard(playerController.getPlayer("Player").getHand().getLastCardAdded(), ((DealtCardZone)gameZones.get("dealerHandZone")).getNextZone().getCardHolderLocation());
-//			
-//			playerController.getPlayer("Player").setHasHand(true);
-//		}
-		
-	    
 
 	}
 	
@@ -125,13 +99,8 @@ public class DeckController {
 			Deck newDeck = deckBuilder.generateStandardDeck().shuffle().build();
 			mainGameStack.addAll(newDeck.getCardsInDeck());
 			decks.put(Integer.valueOf(d), newDeck);
-			newDeck.printDeckToConsole();
-		}
-		
-		
-		//System.out.printf("game stack has: %d cards%n", mainGameStack.size());
-		
-		
+			//newDeck.printDeckToConsole();
+		}	
 	}
 	
 	public Map<Integer, Deck> getDecks() {
@@ -156,9 +125,5 @@ public class DeckController {
 	public Stack<Card> getMainGameStack() {
 		return mainGameStack;
 	}
-	
-	//DECK UTILITY METHODS
-	
-	
 
 }

@@ -17,7 +17,6 @@ public class BetPotMessage {
 	    }
 
 	    public void addObserver(BetPotMessageObserver observer) {
-	    	System.out.println("menu message add observer");
 	        observers.add(observer);
 	    }
 

@@ -1,7 +1,6 @@
 package dev.stephenpearson.main;
 
 import dev.stephenpearson.controller.GameController;
-import dev.stephenpearson.model.GameModel;
 
 
 

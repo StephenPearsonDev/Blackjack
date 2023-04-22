@@ -14,7 +14,6 @@ public class PlayerBankMessage {
     }
 
     public void addObserver(PlayerBankMessageObserver observer) {
-    	System.out.println("menu message add observer");
         observers.add(observer);
     }
 
@@ -33,7 +32,6 @@ public class PlayerBankMessage {
 
     private void notifyPlayerBankMessageObservers() {
         for (PlayerBankMessageObserver observer : observers) {
-        	
             observer.update(this);
         }
     }

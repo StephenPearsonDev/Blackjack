@@ -15,9 +15,10 @@ public class Hand {
 	private boolean handContainsAce = false;
 	private boolean handHasBlackjack = false;
 	private int aceCount = 0;
-	private List<Rectangle> cardZones = new ArrayList<>();
+	private List<Rectangle> cardZones; 
 	private int cardZoneCounter = 0;
 	private int handValue;
+	private boolean playerBust = false;
 	
 	private int cardZoneX = 100;
 	private int cardZoneY;
@@ -25,20 +26,19 @@ public class Hand {
 	public Hand(int cardZoneY) {
 		this.cardZoneY = cardZoneY;
 		initCardZones();
-		System.out.println("From Hand " + "Number of hands: " + ++numberOfHands);
 	}
 	
 	public void initCardZones() {
-		
+		cardZones = new ArrayList<>();
 		int counter = 0;
 		for(int i = 0; i < 8; i++) {
 			if(i < 4) {
-				cardZones.add(new Rectangle(cardZoneX*counter++, cardZoneY,18*5,27*5));
+				cardZones.add(new Rectangle(cardZoneX*counter+++80, cardZoneY,18*5,27*5));
 				if(i == 3) {
 					counter = 0;
 				}
 			} else if(i >= 4) {
-				cardZones.add(new Rectangle(cardZoneX*counter+++40, cardZoneY + 80,18*5,27*5));
+				cardZones.add(new Rectangle(cardZoneX*counter+++160, cardZoneY + 80,18*5,27*5));
 				
 			}
 		}
@@ -50,6 +50,7 @@ public class Hand {
 	}
 	
 	public void addCardToHand(Card c) {
+		
 	    if (c.getRank() == Card.Rank.ACE) {
 	        aceCount++;
 	    }
@@ -66,10 +67,14 @@ public class Hand {
 	public int getHandValue() {
 	    return handValue;
 	}
-
-
 	
+	public int getValueOfDealerFirstCard() {
+		return cardsInHand.get(0).getFaceValue();
+	}
+
+
 	public void calculateHandValue() {
+	
 	    int totalValue = 0;
 	    int aceCount = 0;
 
@@ -82,7 +87,6 @@ public class Hand {
 	        }
 	        totalValue += cardValue;
 	    }
-
 	    // Handle Aces
 	    while (totalValue > 21 && aceCount > 0) {
 	        totalValue -= 10;
@@ -90,10 +94,11 @@ public class Hand {
 	    }
 
 	    handValue = totalValue;
-	    if(handValue == 21) {
-	    	System.out.println("you win");
+	    
+	    if(handValue <= 21) {
+	    	playerBust = false;
 	    } else if(handValue > 21) {
-	    	System.out.println("you lose");
+	    	playerBust = true;
 	    }
 	}
 
@@ -102,8 +107,12 @@ public class Hand {
 		return cardsInHand;
 	}
 	
+	public void clear() {
+		cardsInHand.clear();
+		cardZoneCounter = 0;
+	}
 	
-	
+
 	public Card getLastCardAdded() {
 		return cardsInHand.get(numCardsInHand-1);
 	}
@@ -119,6 +128,10 @@ public class Hand {
 	
 	public Card getNewCard() {
 		return newCard;
+	}
+	
+	public boolean isBust() {
+		return playerBust;
 	}
 	
 }

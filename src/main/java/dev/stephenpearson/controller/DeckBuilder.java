@@ -18,7 +18,6 @@ public class DeckBuilder {
         for (Card.Suit s : Card.Suit.values()) {
             for (Card.Rank r : Card.Rank.values()) {
                 if (r != Card.Rank.ACE_ONE) {
-
                     cards.add(new Card(s, r));
                 }
             }

@@ -1,0 +1,3562 @@
+package dev.stephenpearson.controller;
+
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Timer;
+
+import dev.stephenpearson.model.Card;
+import dev.stephenpearson.view.GameWindow;
+
+public class AnimationController implements ActionListener {
+	
+	private Card cardToAnimate;
+	private Point cardOrigin;
+	private Point cardDestination;
+	private GameWindow gameWindow;
+	private TableController tableController;
+	private boolean timerStopped = false;
+
+	private boolean cardAnimating = false;
+	
+	
+	
+	private int targetX;
+	private Timer timer;
+	private float start = 0f;
+	private float end = 400f;
+	private float duration = 1000f;
+	private float currentTime = 0f;
+	private boolean moved = false;
+	
+	Point startP = new Point(700, 100);
+	Point endP = new Point(100, 500);
+	private int distance;
+	
+	public AnimationController(GameWindow gameWindow, TableController tableController) {
+		this.gameWindow = gameWindow;
+		this.tableController = tableController;
+		timer = new Timer(1, this);
+		timerStopped = false;
+	}
+	
+	
+	public void startTimer() {
+				timerStopped = false;
+				cardAnimating = true;
+				timer.start();
+				
+				
+	}
+	
+	public void animateCard(Card cardToAnimate, Point destination) {
+		
+		this.cardToAnimate = cardToAnimate;
+		cardOrigin = cardToAnimate.getCornerPoint();
+		cardDestination = destination;
+		startTimer();
+		
+	}
+	
+	public static Point easeInOutCubicPoint(float t, Point b, Point c, float d) {
+		  t /= d/2;
+		  if (t < 1) return new Point((int)(c.x/2*t*t*t + b.x), (int)(c.y/2*t*t*t + b.y));
+		  t -= 2;
+		  return new Point((int)(c.x/2*(t*t*t + 2) + b.x), (int)(c.y/2*(t*t*t + 2) + b.y));
+		}
+
+	public void anCard() {
+		
+		int durationDelta;
+		int distanceDelta;
+		distance = 100;
+
+		if(currentTime < duration ) {
+
+			//float easedValue = easeInOutCubic(currentTime, start, end - start, duration);
+			Point easedValue = easeInOutCubicPoint(currentTime, cardOrigin, new Point(cardDestination.x - cardOrigin.x, cardDestination.y - cardOrigin.y), duration);
+			
+			//cardList.get(0).slide(easedValue);
+			
+			cardToAnimate.slidePoint(easedValue);
+			currentTime += 50;
+			gameWindow.repaint();
+	} else {
+		System.out.println("timer stopped");
+		
+		timer.stop();
+		cardAnimating = false;
+		currentTime = 0;
+	
+		timerStopped = true;
+		
+	}
+	}
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		anCard();
+	
+	}
+	
+	public boolean isCardAnimating() {
+		return cardAnimating;
+	}
+
+}
+
+package dev.stephenpearson.controller;
+
+import dev.stephenpearson.model.PlayerBank;
+
+public class BankController {
+	
+	
+	private PlayerBank playerBank;
+	
+	
+	
+	public BankController() {
+		
+		playerBank = new PlayerBank(1000);
+		
+	}
+	
+	public void betPlaced(int betAmount) {
+		playerBank.decreaseBank(betAmount);
+	}
+	
+
+}
+
+package dev.stephenpearson.controller;
+
+public class BetPot {
+	
+	private int sizeOfPot = 0;
+	
+	public BetPot() {
+		
+		
+	}
+	
+	public void increasePot(int bet) {
+		sizeOfPot += bet;
+
+	}
+	
+	public void clearPot() {
+		sizeOfPot = 0;
+	}
+	
+	
+	public String getPotString() {
+		return String.valueOf(sizeOfPot);
+	}
+	
+	public int getSizeOfPot() {
+		return sizeOfPot;
+	}
+
+}
+
+package dev.stephenpearson.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+
+public class BetPotMessage {
+	
+	
+	 private String message;
+	    private List<BetPotMessageObserver> observers;
+
+	    public BetPotMessage() {
+	   
+	        this.observers = new ArrayList<>();
+	    }
+
+	    public void addObserver(BetPotMessageObserver observer) {
+	    	System.out.println("menu message add observer");
+	        observers.add(observer);
+	    }
+
+	    public void removeObserver(BetPotMessageObserver observer) {
+	        observers.remove(observer);
+	    }
+
+	    public void setMessage(String message) {
+	        this.message = message;
+	        notifyBetPotObservers();
+	    }
+
+	    public String getMessage() {
+	        return message;
+	    }
+
+	    private void notifyBetPotObservers() {
+	        for (BetPotMessageObserver observer : observers) {
+	        	
+	            observer.update(this);
+	        }
+	    }
+
+}
+
+package dev.stephenpearson.controller;
+
+import dev.stephenpearson.model.MenuMessage;
+
+public interface BetPotMessageObserver {
+	void update(BetPotMessage betPotMessage);
+}
+
+package dev.stephenpearson.controller;
+
+import java.util.Collections;
+import java.util.Stack;
+
+import dev.stephenpearson.model.Card;
+import dev.stephenpearson.model.Deck;
+
+public class DeckBuilder {
+    private Stack<Card> cards;
+
+    public DeckBuilder() {
+    	
+    }
+
+    public DeckBuilder generateStandardDeck() {
+    	cards = new Stack<Card>();
+        for (Card.Suit s : Card.Suit.values()) {
+            for (Card.Rank r : Card.Rank.values()) {
+                if (r != Card.Rank.ACE_ONE) {
+
+                    cards.add(new Card(s, r));
+                }
+            }
+        }
+        return this;
+    }
+
+    public DeckBuilder shuffle() {
+        Collections.shuffle(cards);
+        return this;
+    }
+
+    public Deck build() {
+        return new Deck(cards);
+    }
+}
+
+package dev.stephenpearson.controller;
+
+import java.awt.Point;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
+import dev.stephenpearson.model.Card;
+import dev.stephenpearson.model.ComputerDealer;
+import dev.stephenpearson.model.DealtCardZone;
+import dev.stephenpearson.model.Deck;
+import dev.stephenpearson.model.GameZone;
+import dev.stephenpearson.model.HumanPlayer;
+import dev.stephenpearson.model.PlayerEntity;
+
+public class DeckController {
+	private DeckBuilder deckBuilder;
+	
+	private static Map<Integer, Deck> decks;
+	private static Stack<Card> gameStack = new Stack<>();
+	private static Stack<Card> mainGameStack = new Stack<>();
+	private Card topCard;
+	
+	
+	private AnimationController animationController;
+	private static Map<String, GameZone> gameZones;
+	private boolean firstRoundDealt = false;
+	
+	public DeckController() {
+		
+		
+		deckBuilder = new DeckBuilder();
+		
+		init();
+		
+		//buildGameStack();
+	}
+	
+	public void init() {
+		buildDecks();
+	}
+	
+	
+	
+	public void passAnimationController(AnimationController animationController) {
+		this.animationController = animationController;
+	}
+	
+	//The Dealer deals 1 card down to self then 1 card up to player, 1 card up to self and 1 card up to player
+	public void initGame() {
+		
+		
+//		if(!firstRoundDealt) {
+//		
+//			firstRoundDealt = true;
+//			((ComputerDealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Player"), gameStack, "up");
+//			
+//			animationController.animateCard(playerController.getPlayer("Player").getHand().getLastCardAdded(), ((DealtCardZone)gameZones.get("playerHandZone")).getNextZone().getCardHolderLocation());
+//		
+//			//((Dealer)playerController.getPlayer("Dealer")).dealCardTo(playerController.getPlayer("Dealer"), gameStack, "down");
+//			//animationController.animateCard(playerController.getPlayer("Player").getHand().getLastCardAdded(), ((DealtCardZone)gameZones.get("dealerHandZone")).getNextZone().getCardHolderLocation());
+//			
+//			playerController.getPlayer("Player").setHasHand(true);
+//		}
+		
+	    
+
+	}
+	
+	public void setCardPoints(Point deckZoneCenterPoint) {
+		for(Card c : gameStack) {
+			
+			c.setInitPoints(deckZoneCenterPoint);
+		}
+	}
+	
+	public void buildGameStack() {
+		
+		decks.forEach((I,D) -> gameStack.addAll(D.getCardsInDeck()));
+		
+		
+	}
+	
+	public void dealCard() {
+		gameStack.pop();
+		if(!gameStack.empty()) {
+			topCard = gameStack.peek();
+		}
+	}
+	
+	public void dealCardTo(PlayerEntity playerEntity, String upOrDown) {
+		
+		switch(upOrDown) {
+		case "up":
+			playerEntity.getHand().addCardToHand(getTopStackCard());
+			
+		case "down":
+			
+			playerEntity.getHand().addCardToHand(getTopStackCard());
+			playerEntity.getHand().getLastCardAdded().setCardFaceDown(true);
+		}
+		
+	}
+	
+	
+	public void printGameStackToConsole() {
+		
+		if(gameStack.isEmpty()) {
+			System.out.println("The game stack is empty.");
+		} else {
+			gameStack.forEach(e -> System.out.println(e.getCardString()));
+			System.out.println("Stack size is: " + gameStack.size());
+		}
+
+	}
+	
+	public void buildDecks() {
+		
+		
+		decks = new HashMap<>();
+		for(int d = 0; d < 4; d++) {
+		
+			Deck newDeck = deckBuilder.generateStandardDeck().shuffle().build();
+			mainGameStack.addAll(newDeck.getCardsInDeck());
+			decks.put(Integer.valueOf(d), newDeck);
+			newDeck.printDeckToConsole();
+		}
+		
+		
+		//System.out.printf("game stack has: %d cards%n", mainGameStack.size());
+		
+		
+	}
+	
+	public Map<Integer, Deck> getDecks() {
+
+		return decks;
+	}
+	
+	public Stack<Card> getGameStack() {
+		return gameStack;
+	}
+	
+	public Card getTopStackCard() {
+		topCard = gameStack.pop();
+		return topCard;
+	}
+	
+	public Card lookAtTopCard() {
+		return topCard;
+	}
+	
+
+	public Stack<Card> getMainGameStack() {
+		return mainGameStack;
+	}
+	
+	//DECK UTILITY METHODS
+	
+	
+
+}
+
+package dev.stephenpearson.controller;
+
+import dev.stephenpearson.model.ComputerDealer;
+import dev.stephenpearson.model.DealerHandValueMessage;
+import dev.stephenpearson.model.GameState;
+import dev.stephenpearson.model.HandValueMessage;
+import dev.stephenpearson.model.HumanPlayer;
+import dev.stephenpearson.model.MenuMessage;
+import dev.stephenpearson.model.MenuState;
+import dev.stephenpearson.model.PlayerHandValueMessage;
+import dev.stephenpearson.model.State;
+import dev.stephenpearson.view.Button.ButtonAction;
+import dev.stephenpearson.view.GameWindow;
+
+public class GameController implements Runnable, TableControllerObserver {
+	
+	//Message boxes
+	private static BetPotMessage betPotMessage;
+	private static MenuMessage menuMessage;
+	private static PlayerBankMessage playerBankMessage;
+	private static HandValueMessage playerHandValueMessage;
+	private static HandValueMessage dealerHandValueMessage;
+	
+	
+	private static SpriteController spriteController;
+	private static TableController tableController;
+	private static RenderController renderController;
+	private static StateController stateController;
+	private static GameWindow gameWindow;
+	private static BetPot betPot;
+	private static State[] states;
+	
+	private static State currentGameState;
+	
+	boolean firstBetPlaced = false;
+	
+
+	public GameController() {
+
+		states = new State[] {new MenuState(), new GameState()};
+		currentGameState = states[0];
+		spriteController = new SpriteController();
+		stateController = new StateController();
+		renderController = new RenderController();
+		tableController = new TableController(stateController.getCurrentGameState());
+		menuMessage = new MenuMessage();
+		betPotMessage = new BetPotMessage();
+		playerBankMessage = new PlayerBankMessage();
+		dealerHandValueMessage = new DealerHandValueMessage(50,300,200,100,"Dealer hand: ");
+		playerHandValueMessage = new PlayerHandValueMessage(50,600,200,100,"Player hand: ");
+		
+		
+	
+	}
+
+	
+	
+
+
+	
+	
+	public void render() {
+		gameWindow.repaint();
+	}
+	
+	
+	public void initGame() {
+		System.out.println("init called");
+	
+		tableController.init();
+		
+		gameWindow = new GameWindow(currentGameState,buttonAction -> {
+	        switch(buttonAction) {
+	        
+	        case EXIT:
+	        	System.exit(0);
+	        	break;
+	        
+	        case START:
+	        	currentGameState = states[1];
+	        	stateController.changeState(currentGameState);
+	        	updateMenuMessage(menuMessage.getDefaultStartMessage());
+	        	break;
+	        
+	        case HIT:
+				if(!firstBetPlaced) {
+	        		updateMenuMessage("You have not placed a bet yet. " + menuMessage.getDefaultStartMessage());
+	        	} else {
+	        		if(tableController.getHumanPlayer().getHand().getHandValue() <=21) {
+	        			tableController.progressDealer(ButtonAction.HIT);
+		        		updatePlayerHandValueMessage();
+		        		gameWindow.getGui().updateRenderableCards(tableController.getHumanPlayer().getHand().getCardsInHand());
+		        		gameWindow.getGui().setDrawCards(true);
+	        		}
+	        		
+	        	}
+	        	
+	        	break;
+	        
+	        case STAND:
+	        	if(!firstBetPlaced) {
+	        		updateMenuMessage("You have not placed a bet yet. " + menuMessage.getDefaultStartMessage());
+	        	
+	        	} else {
+	        		System.out.println("dealer solo");
+	        		
+	        		tableController.progressDealer(ButtonAction.STAND);
+	        		
+	        		gameWindow.getGui().updateRenderableCards(tableController.getComputerDealer().getHand().getCardsInHand());
+	        	}
+	        	break;
+	        case RESET:
+	        	resetGame();
+	        	
+	        	System.out.println("reset");
+	        	break;
+	        case MENU:
+	        	resetGame();
+	        	currentGameState = states[0];
+	        	stateController.changeState(currentGameState);
+	        	break;
+	        case BET10:
+	        	if(tableController.getBetPot().getSizeOfPot() <= tableController.getHumanPlayer().getPlayerBank().getBankSize() - 10) {
+	        		tableController.getBetPot().increasePot(10);
+	        		updateBetPotMessage(tableController.getBetPot().getPotString());
+	        		updateMenuMessage("Click 'Place bet' to start game with desired bet amount.");
+	        	} else {
+	        		updateMenuMessage("Not enough money place $10 bet. Try a smaller bet size or clear bet");
+	        	}
+	        	
+	        	
+	        	break;
+	        case BET50:
+	        	
+	        	if(tableController.getBetPot().getSizeOfPot() <= tableController.getHumanPlayer().getPlayerBank().getBankSize() - 50) {
+	        		tableController.getBetPot().increasePot(50);
+	        		updateBetPotMessage(tableController.getBetPot().getPotString());
+	        		updateMenuMessage("Click 'Place bet' to start game with desired bet amount.");
+	        	} else {
+	        		updateMenuMessage("Not enough money place $50 bet. Try a smaller bet size or clear bet");
+	        	}
+	        	break;
+	        case CLEARBET:
+	        	
+	        	if(tableController.isGameInProgress()) {
+	        		updateMenuMessage("Game is in progress you can't clear the bet!");
+	        	} else {
+	        		tableController.getBetPot().clearPot();
+		        	updateBetPotMessage(tableController.getBetPot().getPotString());
+		        	updateMenuMessage(menuMessage.getDefaultStartMessage());
+	        	}
+	        	
+	        	break;
+	        	
+	        case PLACEBET:
+	        	if(!tableController.isGameInProgress()) {
+	        		if(tableController.getBetPot().getSizeOfPot() > 0) {
+		        		tableController.setGameInProgress(true);
+		        		firstBetPlaced = true;
+		        		System.out.println(tableController.getBetPot().getSizeOfPot());
+		        		tableController.getHumanPlayer().getPlayerBank().decreaseBank(tableController.getBetPot().getSizeOfPot());
+		        		updatePlayerBankMessage();
+		        		tableController.getBetPot().clearPot();
+		        		updateBetPotMessage(tableController.getBetPot().getPotString());
+		        		updateMenuMessage("Hit or stand to continue");
+		        		tableController.wakeDealer();
+		        		gameWindow.getGui().updateRenderableCards(tableController.getComputerDealer().getHand().getCardsInHand());
+		        		gameWindow.getGui().updateRenderableCards(tableController.getHumanPlayer().getHand().getCardsInHand());
+		
+		        		updatePlayerHandValueMessage();
+		        		updateDealerHandValueMessage();
+		        		checkContinue();
+		        		
+		        		tableController.playRound();
+		        		gameWindow.getGui().setDrawCards(true);
+		        		
+		        	} else {
+		        		updateMenuMessage("Cannot place bet of $0 - increase bet size and try again.");
+		        	}
+	        	} else {
+	        		
+	        		if(tableController.getBetPot().getSizeOfPot() == 0) {
+	        			updateMenuMessage("Cannot place bet of $0 - increase bet size and try again.");
+	        		}else {
+	        			softResetGame();
+		        		
+	    	        	
+		        		firstBetPlaced = true;
+		        		System.out.println(tableController.getBetPot().getSizeOfPot());
+		        		tableController.getHumanPlayer().getPlayerBank().decreaseBank(tableController.getBetPot().getSizeOfPot());
+		        		updatePlayerBankMessage();
+		        		tableController.getBetPot().clearPot();
+		        		updateBetPotMessage(tableController.getBetPot().getPotString());
+		        		updateMenuMessage("Hit or stand to continue");
+		        		tableController.wakeDealer();
+		        		gameWindow.getGui().updateRenderableCards(tableController.getComputerDealer().getHand().getCardsInHand());
+		        		gameWindow.getGui().updateRenderableCards(tableController.getHumanPlayer().getHand().getCardsInHand());
+		
+		        		updatePlayerHandValueMessage();
+		        		updateDealerHandValueMessage();
+		        		checkContinue();
+		        		
+		        		tableController.playRound();
+		        		gameWindow.getGui().setDrawCards(true);
+	        		}
+	        		
+		        		
+		        	
+	        	}
+	        	
+	        	break;
+	        
+	        default:
+	        	
+	        	break;
+	        } 
+	    });
+		
+		tableController.addObserver(this);
+		dealerHandValueMessage.addObserver(gameWindow.getGui());
+		playerHandValueMessage.addObserver(gameWindow.getGui());
+		playerBankMessage.addObserver(gameWindow.getGui());
+		betPotMessage.addObserver(gameWindow.getGui());
+		menuMessage.addObserver(gameWindow.getGui());
+		
+		
+		gameWindow.getGui().addGuiObserver(gameWindow);
+		stateController.addObserver(gameWindow);
+		
+	}
+	
+	public boolean checkContinue() {
+		
+		boolean continueGame = false;
+		
+		switch(tableController.checkIfBlackjack()) {
+		case 0:
+			continueGame = false;
+			break;	
+		case 1:
+			continueGame = false;
+			break;	
+		case 2:
+			continueGame = false;
+			break;	
+		case 3:
+			continueGame = true;
+			break;	
+		
+		}
+		return continueGame;	
+	}
+
+	public void updateMenuMessage(String message) {
+		menuMessage.setMessage(message);
+	}
+	
+	public void updateBetPotMessage(String message) {
+		betPotMessage.setMessage(message);
+	}
+	
+	public void updatePlayerHandValueMessage() {
+	
+			playerHandValueMessage.setMessage(String.valueOf(tableController.getHumanPlayer().getHand().getHandValue()));
+
+	}
+	
+	public void updateDealerHandValueMessage() {
+		if(((ComputerDealer)tableController.getComputerDealer()).isSecondCardHidden()) {
+			if(tableController.dealerHasBlackjack()) {
+				dealerHandValueMessage.setMessage(String.valueOf(tableController.getComputerDealer().getHand().getHandValue()));
+			} else {
+				dealerHandValueMessage.setMessage(String.valueOf(tableController.getComputerDealer().getHand().getValueOfDealerFirstCard()));	
+			}
+		} else {
+			System.out.println("printing hand value");
+			dealerHandValueMessage.setMessage(String.valueOf(tableController.getComputerDealer().getHand().getHandValue()));
+		}
+	}
+	
+	public void updatePlayerBankMessage() {
+		playerBankMessage.setMessage(tableController.getHumanPlayer().getPlayerBank().getBankString());
+	}
+
+
+
+
+
+	@Override
+	public void run() {
+		initGame();	
+	}
+	
+	public void resetGame() {
+
+	gameWindow.getGui().init();	
+	tableController.init();
+	updateMenuMessage(menuMessage.getDefaultStartMessage());
+	updateBetPotMessage(tableController.getBetPot().getPotString());
+	updatePlayerBankMessage();
+	}
+	
+	public void softResetGame() {
+		System.out.println("soft reset");
+		tableController.getHumanPlayer().getHand().clear();
+		tableController.getComputerDealer().getHand().clear();
+		gameWindow.getGui().init();	
+	}
+
+
+
+
+
+
+
+	@Override
+	public void update(int actionType) {
+	System.out.println("notified");
+		switch(actionType) {
+		case 1:
+			System.out.println("updating player bank on win");
+			updatePlayerBankMessage();
+		case 2:
+			updateDealerHandValueMessage();
+			gameWindow.repaint();
+		case 4:
+			updateMenuMessage("The dealer won. Place a new bet to play again");
+			
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+}
+
+package dev.stephenpearson.controller;
+
+public interface GameControllerInterface {
+    void onExitButtonClick();
+    void onOptionsButtonClick();
+    void onGameButtonClick();
+    void onBet10ButtonClick();
+    void onPlaceBetButtonClick();
+}
+
+package dev.stephenpearson.controller;
+
+import dev.stephenpearson.model.GameState;
+import dev.stephenpearson.model.HumanPlayer;
+
+public class GameStateController {
+	
+	private GameState gameState;
+	
+	public GameStateController(GameState gameState) {
+		this.gameState = gameState;
+	}
+	
+	public void changeGameState(GameState gameState) {
+		this.gameState = gameState;
+	}
+	
+	public GameState getGameState() {
+		return gameState;
+	}
+	
+	
+	
+
+}
+
+package dev.stephenpearson.controller;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import dev.stephenpearson.model.ComputerDealer;
+import dev.stephenpearson.model.HumanPlayer;
+
+public class InputHandler implements MouseListener {
+	
+	private TableController tableController;
+	private AnimationController animationController;
+	
+	
+	public InputHandler(TableController tableController, AnimationController animationController) {
+		this.tableController = tableController;
+		this.animationController = animationController;
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public void handleBetInput(int betAmount) {
+		
+		((HumanPlayer)tableController.getHumanPlayer()).getPlayerBank().decreaseBank(betAmount);
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		if(tableController.getDeckController()
+				.lookAtTopCard()
+				.getCardBounds()
+				.contains(e.getPoint())) {
+			//System.out.println("top card is: " + tableController.getDeckController().lookAtTopCard().getCardString());
+			if(!animationController.isCardAnimating()) {
+				animationController.animateCard(tableController.getDeckController().lookAtTopCard(), tableController.getDealtCardZone("playerHandZone").getNextZone().getCardHolderLocation());
+				
+				//passWindowRenderObject(tableController.getDeckController().getTopStackCard());
+				//System.out.println(tableController.getDeckController().lookAtTopCard().getCardString());
+			}
+			
+		
+		} 
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+
+}
+
+package dev.stephenpearson.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class PlayerBankMessage {
+	private String message;
+    private List<PlayerBankMessageObserver> observers;
+
+    public PlayerBankMessage() {
+   
+        this.observers = new ArrayList<>();
+    }
+
+    public void addObserver(PlayerBankMessageObserver observer) {
+    	System.out.println("menu message add observer");
+        observers.add(observer);
+    }
+
+    public void removeObserver(PlayerBankMessageObserver observer) {
+        observers.remove(observer);
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+        notifyPlayerBankMessageObservers();
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    private void notifyPlayerBankMessageObservers() {
+        for (PlayerBankMessageObserver observer : observers) {
+        	
+            observer.update(this);
+        }
+    }
+}
+
+package dev.stephenpearson.controller;
+
+public interface PlayerBankMessageObserver {
+	void update(PlayerBankMessage betPotMessage);
+}
+
+package dev.stephenpearson.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import dev.stephenpearson.model.Renderable;
+
+public class RenderController {
+	
+	private static List<Renderable> renderObjects = new ArrayList<>();
+	private static int numberOfRenderObjects;
+	
+	public RenderController() {
+		
+	
+	}
+	
+	public void addRenderObjectToList(Renderable r) {
+		if(!renderObjects.contains(r)) {
+			renderObjects.add(r);
+			numberOfRenderObjects++;
+		}
+	}
+	
+	public void addListOfRenderObjectsToList(List<Renderable> rs) {
+		for(Renderable r : rs) {
+			if(!renderObjects.contains(r)) {
+				renderObjects.add(r);
+				numberOfRenderObjects++;
+			}
+		}
+	}
+	
+	public List<Renderable> getRenderObjects() {
+		return renderObjects;
+	}
+	
+	public int getNumberOfRenderObjects() {
+		return numberOfRenderObjects;
+	}
+	
+	
+	
+	
+
+}
+
+package dev.stephenpearson.controller;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.imageio.ImageIO;
+
+import dev.stephenpearson.model.SpriteSheet;
+
+public class SpriteController {
+	
+	private List<SpriteSheet> spriteSheetList = new ArrayList<>();
+	private static Map<String, BufferedImage> cardImageMap = new LinkedHashMap<>();
+	
+
+	private String[] suitNames = new String[] {"HEARTS","DIAMONDS","SPADES","CLUBS"};
+	private String[] cardValues = new String[] {"ACE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", 
+												"NINE","TEN","JACK","QUEEN","KING"};
+	
+	
+	public SpriteController() {
+		
+		processCardSheet();
+	}
+	
+	public void processCardSheet() {
+		try {
+			BufferedImage cardSheet = ImageIO.read(new File("res/cards.png"));
+			int cardCounter = 0;
+			int counter = 0;
+			int width = 17;
+			int height = 26;
+			int offset = 1;
+			int y = 1;
+			int x = 19;
+					
+			for(String s : suitNames) {
+				for(String v: cardValues) {
+					
+					BufferedImage c = cardSheet.getSubimage(x, y, width, height);
+					cardImageMap.put(v+"OF"+s, c);
+					counter++;
+					x += 18;
+					if(counter >= 13) {
+						x = 19;
+						counter = 0;
+					}
+					
+					cardCounter++;
+				}
+				counter = 0;
+				
+				y+=height+1;
+				
+				
+			}
+			
+			BufferedImage cardBack = cardSheet.getSubimage(19, 109, width, height);
+			cardImageMap.put("CARDBACK", cardBack);
+			
+			System.out.println(cardCounter + " cards added");
+			
+		} catch(IOException e) {
+			System.out.println("file not found");
+		}
+		
+		
+		
+		
+		
+	}
+	
+	public void addSpriteSheet(SpriteSheet spriteSheet) {
+		if(!spriteSheetList.contains(spriteSheet)) {
+			spriteSheetList.add(spriteSheet);
+		}
+		
+		
+	}
+	
+	public static Map<String, BufferedImage> getCardImageMap() {
+		return cardImageMap;
+	}
+	
+	
+
+}
+
+package dev.stephenpearson.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import dev.stephenpearson.model.MenuState;
+import dev.stephenpearson.model.State;
+import dev.stephenpearson.view.StateObserver;
+
+public class StateController {
+	
+	private List<StateObserver> observers = new ArrayList<>();
+	private State currentState;
+	
+	public StateController() {
+		
+		currentState = new MenuState();
+	}
+	
+
+	 public void addObserver(StateObserver observer) {
+	        observers.add(observer);
+	    }
+	
+	 public void changeState(State newState) {
+	        this.currentState = newState;
+	        notifyObservers();
+	    }
+
+
+	public State getCurrentGameState() {
+		return currentState;
+	}
+	
+	private void notifyObservers() {
+        for (StateObserver observer : observers) {
+            observer.onStateChanged(currentState);
+        }
+    }
+
+
+	
+
+
+}
+
+package dev.stephenpearson.controller;
+
+public interface StateHandler {
+	void handle();
+}
+
+package dev.stephenpearson.controller;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import dev.stephenpearson.model.Card;
+import dev.stephenpearson.model.ComputerDealer;
+import dev.stephenpearson.model.DealtCardZone;
+import dev.stephenpearson.model.GameZone;
+import dev.stephenpearson.model.HandValueMessageObserver;
+import dev.stephenpearson.model.HumanPlayer;
+import dev.stephenpearson.model.MenuMessage;
+import dev.stephenpearson.model.PlayerEntity;
+import dev.stephenpearson.model.State;
+import dev.stephenpearson.view.Button.ButtonAction;
+
+public class TableController {
+	
+	private static DeckController deckController;
+	private MenuMessage menuMessage;
+	private AnimationController animationController;
+	private static Map<String, GameZone> gameZones;
+	private static PlayerEntity humanPlayer;
+	private static PlayerEntity computerDealer;
+	private static List<PlayerEntity> playerEntities;
+	private State currentGameState;
+	private static boolean roundBetPlaced = false;
+	private boolean gameInProgress = false;
+	private static BetPot betPot;
+	
+	private List<TableControllerObserver> observers;
+	
+
+	private static boolean betPlaced = false;
+
+	   
+	public TableController(State currentGameState) {
+		
+		this.currentGameState = currentGameState;
+		this.observers = new ArrayList<>();
+		//deckController = new DeckController(gameZones);
+
+	}
+	
+	
+	public void addObserver(TableControllerObserver observer) {
+        observers.add(observer);
+    }
+
+	public void removeObserver(TableControllerObserver observer) {
+        observers.remove(observer);
+    }
+ 
+	private void notifyTableControllerObserver(int actionType) {
+        for (TableControllerObserver observer : observers) {
+        	
+            observer.update(actionType);
+        }
+    }
+	
+	public void init() {
+		
+		deckController = new DeckController();
+		
+		
+		humanPlayer = new HumanPlayer(450);
+		computerDealer = new ComputerDealer(deckController.getMainGameStack(),150);
+		
+		playerEntities = new ArrayList<>();
+		
+		playerEntities.add(computerDealer);
+		playerEntities.add(humanPlayer);
+		betPot = new BetPot();
+		gameInProgress = false;
+		
+	}
+	
+	public void passAnimationController(AnimationController animationController) {
+		this.animationController = animationController;
+		deckController.passAnimationController(this.animationController);
+	}
+	
+	public void initZones() {
+		
+	}
+	
+	
+	
+	
+	public DealtCardZone getDealtCardZone(String targetZone) {
+		
+		return (DealtCardZone) gameZones.get(targetZone);
+	}
+	
+	public DeckController getDeckController() {
+		return deckController;
+	}
+
+	public HumanPlayer getHumanPlayer() {
+		return (HumanPlayer) humanPlayer;
+	}
+
+	public void setHumanPlayer(PlayerEntity humanPlayer) {
+		TableController.humanPlayer = humanPlayer;
+	}
+
+	public PlayerEntity getComputerDealer() {
+		return computerDealer;
+	}
+
+	public void setComputerDealer(PlayerEntity computerDealer) {
+		TableController.computerDealer = computerDealer;
+	}
+	
+	public void progressDealer(ButtonAction buttonAction) {
+		
+		switch(buttonAction) {
+		
+		case HIT:
+			((ComputerDealer)computerDealer).playerHit(playerEntities, deckController.getMainGameStack());
+			break;
+			
+		case STAND:
+			playOutDealerSolo();
+			checkIfBlackjack();
+			break;
+			
+		default:
+			break;
+		}
+	}
+	
+
+	public static List<PlayerEntity> getPlayerEntities() {
+		return playerEntities;
+	}
+
+	public static void setPlayerEntities(List<PlayerEntity> playerEntities) {
+		TableController.playerEntities = playerEntities;
+	}
+
+	public void requestBet() {
+
+	}
+
+	public BetPot getBetPot() {
+		return betPot;
+	}
+	
+	public boolean isBetPlaced() {
+		return betPlaced;
+	}
+
+	public void setBetPlaced(boolean betPlaced) {
+		TableController.betPlaced = betPlaced;
+	}
+	
+	//Dealer methods
+		public void wakeDealer() {
+				System.out.println("dealer woken");
+			
+					((ComputerDealer)computerDealer).dealFirstCards(playerEntities, deckController.getMainGameStack());
+			}
+		
+		public boolean dealerHasBlackjack() {
+			return ((ComputerDealer)computerDealer).dealerHasBlackjack(playerEntities);
+		}
+		
+		public void playOutDealerSolo() {
+			((ComputerDealer)computerDealer).setAllCardsFaceUp();
+			
+			
+			while (true) {
+		        int dealerHandValue = computerDealer.getHand().getHandValue();
+		        boolean isSoft17 = ((ComputerDealer)computerDealer).isSoft17();
+
+		        if (dealerHandValue < 17 || (isSoft17 && dealerHandValue == 17)) {
+		  
+		            ((ComputerDealer)computerDealer).dealerHit(playerEntities, deckController.getMainGameStack());
+		         
+		        } else {
+		        	
+		            break;
+		        }
+		    }
+			notifyTableControllerObserver(2);
+			
+		}
+		
+		public void checkWhoWon() {
+			
+			int playerHandTotal = humanPlayer.getHand().getHandValue();
+			int dealerHandTotal = computerDealer.getHand().getHandValue();
+			if(humanPlayer.getHand().playerBust) {
+				processDealerWin();
+			} else if (!humanPlayer.getHand().playerBust) {
+				if(playerHandTotal == dealerHandTotal) {
+					
+					processDraw();
+				} else if (playerHandTotal > dealerHandTotal) {
+					processPlayerWin();
+				} else {
+					processDealerWin();
+				}
+			}
+
+		}
+		
+		public int checkIfBlackjack() {
+			
+			if(((ComputerDealer)computerDealer).dealerHasBlackjack(playerEntities)) {
+				if(((ComputerDealer)computerDealer).playerHasBlackjack(playerEntities)) {
+					processDraw();
+					((ComputerDealer)computerDealer).setAllCardsFaceUp();
+					return 0;
+				}
+			} else if(!((ComputerDealer)computerDealer).dealerHasBlackjack(playerEntities) && ((ComputerDealer)computerDealer).playerHasBlackjack(playerEntities)) {
+				processPlayerWin();
+				((ComputerDealer)computerDealer).setAllCardsFaceUp();
+				return 1;
+			} else if(((ComputerDealer)computerDealer).dealerHasBlackjack(playerEntities) && !((ComputerDealer)computerDealer).playerHasBlackjack(playerEntities)) {
+				processDealerWin();
+				((ComputerDealer)computerDealer).setAllCardsFaceUp();
+				return 2;
+			}
+				return 3;
+			
+		}
+		
+		public void processDraw() {
+			System.out.println("players draw");
+		}
+		
+		public void processPlayerWin() {
+			((HumanPlayer)humanPlayer).getPlayerBank().increaseBank(betPot.getSizeOfPot()*2);
+			System.out.println("player bank increase by: " + betPot.getSizeOfPot()*2);
+			System.out.println("Player bank now is: " + ((HumanPlayer)humanPlayer).getPlayerBank());
+			System.out.println("human wins");
+			notifyTableControllerObserver(1);
+		}
+		
+		public void processDealerWin() {
+			notifyTableControllerObserver(4);
+		}
+		
+		public void playRound() {
+			if(((ComputerDealer)computerDealer).dealerHasBlackjack(playerEntities)) {
+				System.out.println("GAME OVER");
+			} else {
+				System.out.println("waiting for player");
+				
+			}			
+		}
+		
+		public boolean isGameInProgress() {
+			return gameInProgress;
+		}
+		
+		public void setGameInProgress(boolean gameInProgress) {
+			this.gameInProgress = gameInProgress;
+		}
+	
+
+	
+	
+	
+	
+
+}
+
+package dev.stephenpearson.controller;
+
+
+
+public interface TableControllerObserver {
+	
+	void update(int actionType);
+
+	
+
+}
+
+
+
+package dev.stephenpearson.main;
+
+import dev.stephenpearson.controller.GameController;
+import dev.stephenpearson.model.GameModel;
+
+
+
+public class BlackJack implements Runnable {
+	
+	private Thread gameThread;
+	private static GameController gameController;
+
+	
+	public BlackJack() {
+		
+		initGame();
+	}
+	
+	public void initGame() {
+	
+		gameController = new GameController();
+		gameThread = new Thread(gameController);
+		gameThread.start();
+	}
+	
+	
+	
+
+	@Override
+	public void run() {
+		
+
+	}
+
+}
+
+package dev.stephenpearson.main;
+
+
+import javax.swing.SwingUtilities;
+
+public class Main {
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(BlackJack::new);
+		
+	
+	}
+}
+
+package dev.stephenpearson.model;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+
+import dev.stephenpearson.controller.SpriteController;
+
+public class Card implements Renderable {
+	
+	private Suit suit;
+	private Rank rank;
+	private String cardString;
+	private int faceValue;
+	private Rectangle cardBounds;
+	private int x;
+	private int y;
+	private Color cardFrontColor = new Color(234, 234, 189);
+	private static int cardsInMemory = 0;
+	
+	private Color cardBackColor = new Color(21, 22, 100);
+	private Color cardShadowColor = new Color(128,128,128);
+	private Point centerPoint;
+	private Point cornerPoint;
+	private Dimension cardDimensions;
+	private boolean faceDown = false;
+	
+	private BufferedImage cardFrontImage;
+	private BufferedImage cardBackImage;
+	
+	public static enum Suit {
+		HEARTS,
+		DIAMONDS,
+		CLUBS,
+		SPADES
+	}
+	
+	public static enum Rank {
+		
+		ACE_ONE(1),
+		TWO(2),
+		THREE(3),
+		FOUR(4),
+		FIVE(5),
+		SIX(6),
+		SEVEN(7),
+		EIGHT(8),
+		NINE(9),
+		TEN(10),
+		JACK(10),
+		QUEEN(10),
+		KING(10),
+		ACE(11);
+		
+		private int rankValue;
+		
+		private Rank(int rankValue) {
+			this.setRankValue(rankValue);
+		}
+
+		public int getRankValue() {
+			return rankValue;
+		}
+
+		public void setRankValue(int rankValue) {
+			this.rankValue = rankValue;
+		}
+
+		
+	}
+	
+	public Card(Suit s, Rank r) {
+		System.out.println(r.name()+"OF"+s.name());
+		cardFrontImage = SpriteController.getCardImageMap().get(r.name()+"OF"+s.name());
+		cardBackImage = SpriteController.getCardImageMap().get("CARDBACK");
+		
+		cardsInMemory++;
+		suit = s;
+		rank = r;
+		faceValue = rank.getRankValue();
+		cardString =  rank.name().charAt(0) +  rank.name().substring(1).toLowerCase() + " of " + suit.name().toLowerCase();
+		//cardString =  rank.name()+ " of " + suit.name();
+		cardDimensions = new Dimension(100,140);
+		cardBounds = new Rectangle(0,0,90,150);
+	}
+	
+	public void setInitPoints(Point deckZoneCenterPoint) {
+		cardBounds = new Rectangle(deckZoneCenterPoint.x - cardDimensions.width /2, deckZoneCenterPoint.y - cardDimensions.height /2, cardDimensions.width, cardDimensions.height);
+		centerPoint = new Point(cardBounds.x + cardBounds.width/2 - 15, cardBounds.y + cardBounds.height /2 - 15);
+		cornerPoint = new Point(cardBounds.x, cardBounds.y);
+	}
+	
+	public void setRank(Rank rank) {
+		this.rank = rank;
+	}
+	public Rank getRank() {
+		return rank;
+	}
+	
+	public int getFaceValue() {
+		return faceValue;
+	}
+	
+	public String getCardString() {
+		return cardString;
+	}
+	
+	public Point getCornerPoint() {
+		return cornerPoint;
+	}
+	
+	public void slidePoint(Point p) {
+		
+		cornerPoint.setLocation(p);
+		cardBounds.setLocation(cornerPoint);
+		centerPoint.setLocation(cornerPoint.x + cardBounds.width/2 - 15, cornerPoint.y + cardBounds.height /2 - 15);
+		
+	}
+	
+	public void swapAceValue() {
+		
+		if(faceValue == Rank.ACE.getRankValue()) {
+			rank = Rank.ACE_ONE;
+			faceValue = rank.getRankValue();
+
+		} else if(faceValue == Rank.ACE_ONE.getRankValue()) {
+			rank = Rank.ACE;
+			faceValue = rank.getRankValue();
+		}
+	}
+	
+	public Suit getSuit() {
+		return suit;
+	}
+	
+
+
+	@Override
+	public void draw(Graphics g) {
+		
+		if(faceDown) {
+			g.drawImage(cardBackImage, cardBounds.x, cardBounds.y, cardBackImage.getWidth()*5,cardBackImage.getHeight()*5, null);
+		} else {
+			g.drawImage(cardFrontImage, cardBounds.x, cardBounds.y, cardFrontImage.getWidth()*5,cardFrontImage.getHeight()*5, null);
+		}
+		
+		
+//		if(faceDown) {
+//			g.setColor(cardShadowColor);
+//			g.fillRoundRect(cardBounds.x-3, cardBounds.y+5, cardBounds.width, cardBounds.height, 20 ,20);
+//			g.setColor(cardBackColor);
+//			g.fillRoundRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height, 20 ,20);
+//		} else {
+//			g.setColor(cardShadowColor);
+//			g.fillRoundRect(cardBounds.x-3, cardBounds.y+5, cardBounds.width, cardBounds.height, 20 ,20);
+//			g.setColor(cardFrontColor);
+//			g.fillRoundRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height, 20 ,20);
+//		}
+	
+		
+		
+		
+		
+//		draw bounding box for debugging cardBound position
+//		g.setColor(Color.GREEN);
+//		g.fillRect(cardBounds.x, cardBounds.y, cardBounds.width, cardBounds.height);
+//		g.setColor(Color.RED);
+//		g.fillOval(centerPoint.x, centerPoint.y, 30, 30);
+	}
+	
+	public Rectangle getCardBounds() {
+		return cardBounds;
+	}
+	
+	public Card setCardFaceDown(boolean b) {
+		faceDown = b;
+		return this;
+	}
+	
+	public boolean isFaceDown() {
+		return faceDown;
+	}
+	
+	public int getCardsInMemory() {
+		return cardsInMemory;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public void setY(int y) {
+		this.y = y;
+	}
+	
+	public void setXY(Rectangle xy) {
+		
+		this.x = xy.x;
+		this.y = xy.y;
+		cardBounds.x = this.x;
+		cardBounds.y = this.y;
+	}
+
+}
+
+package dev.stephenpearson.model;
+
+import java.awt.Point;
+import java.awt.Rectangle;
+
+public class CardHolder {
+	
+	private Rectangle cardHolderBounds;
+	private Point cornerPoint;
+	private boolean containsCard = false;
+	private Card card;
+	
+	public CardHolder(int x, int y) {
+		
+		cornerPoint = new Point(x,y);
+	
+	}
+	
+	public void addCardToHolder(Card c) {
+		card = c;
+		containsCard = true;
+	}
+	
+	
+	public Point getCardHolderLocation() {
+		return cornerPoint;
+	}
+
+}
+
+package dev.stephenpearson.model;
+
+import java.util.Stack;
+
+import dev.stephenpearson.model.Card.Rank;
+
+public class ComputerDealer extends PlayerEntity implements DealingStrategy {
+	
+	private Stack<Card> mainGameStack;
+	private boolean secondCardHidden = true;
+	
+	public ComputerDealer(Stack<Card> mainGameStack, int cardZoneY) {
+		super(cardZoneY);
+		this.setMainGameStack(mainGameStack);
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	 public boolean isSoft17() {
+	        if (super.getHand().getCardsInHand().size() != 2) {
+	            return false;
+	        }
+
+	        Card firstCard = super.getHand().getCardsInHand().get(0);
+	        Card secondCard = super.getHand().getCardsInHand().get(1);
+
+	        boolean hasAce = (firstCard.getRank() == Rank.ACE) || (secondCard.getRank() == Rank.ACE);
+	        boolean hasSix = (firstCard.getRank() == Rank.SIX) || (secondCard.getRank() == Rank.SIX);
+
+	        return hasAce && hasSix;
+	    }
+
+	public Stack<Card> getMainGameStack() {
+		return mainGameStack;
+	}
+
+	public void setMainGameStack(Stack<Card> mainGameStack) {
+		this.mainGameStack = mainGameStack;
+	}
+
+	public boolean isSecondCardHidden() {
+		return secondCardHidden;
+	}
+
+	public void setSecondCardHidden(boolean secondCardHidden) {
+		this.secondCardHidden = secondCardHidden;
+	}
+	
+	public void setAllCardsFaceUp() {
+		for(Card c : super.getHand().getCardsInHand()) {
+			secondCardHidden = false;
+			c.setCardFaceDown(false);
+		}
+	}
+	
+	
+	
+	
+
+}
+
+package dev.stephenpearson.model;
+
+public class Constants {
+	
+	public class ViewConstants {
+		
+		public static final int PANEL_WIDTH = 800;
+		public static final int PANEL_HEIGHT = 800;
+		public static final int BUTTON_WIDTH = 100;
+		public static final int BUTTON_HEIGHT = 50;
+		
+		public static final int PANEL_CENTER_X = PANEL_WIDTH / 2;
+		public static final int PANEL_CENTER_Y = PANEL_WIDTH / 2;
+		
+	}
+
+}
+
+package dev.stephenpearson.model;
+
+public class DealerHandValueMessage extends HandValueMessage {
+
+	public DealerHandValueMessage(int x, int y, int width, int height, String boilerPlateMessage) {
+		super(x, y, width, height, boilerPlateMessage);
+		// TODO Auto-generated constructor stub
+	}
+
+}
+
+package dev.stephenpearson.model;
+
+import java.util.List;
+import java.util.Stack;
+
+public interface DealingStrategy  {
+	
+	
+	default void dealCardTo(PlayerEntity playerEntity, Stack<Card> gameStack, String upOrDown) {
+		
+		switch(upOrDown) {
+		case "up":
+			playerEntity.getHand().addCardToHand(gameStack.pop());
+			break;
+		case "down":
+
+			playerEntity.getHand().addCardToHand(((Card)gameStack.pop()).setCardFaceDown(true));
+			break;
+		}
+
+	}
+	
+	default void playerHit(List<PlayerEntity> playerEntities, Stack<Card> gameStack) {
+		
+		for(PlayerEntity playerEntity : playerEntities) {
+			if(playerEntity instanceof HumanPlayer) {
+				Card c = gameStack.pop();
+				c.setXY(playerEntity.getHand().getNextCardZone());
+				playerEntity.getHand().addCardToHand(c);
+			}
+		}
+		
+	}
+	
+	default void dealerHit(List<PlayerEntity> playerEntities, Stack<Card> gameStack) {
+		
+		for(PlayerEntity playerEntity : playerEntities) {
+			if(playerEntity instanceof ComputerDealer) {
+				Card c = gameStack.pop();
+				c.setXY(playerEntity.getHand().getNextCardZone());
+				System.out.println("adding card");
+				playerEntity.getHand().addCardToHand(c);
+			}
+		}
+		
+	}
+	
+	
+	
+	
+	default boolean dealerHasBlackjack(List<PlayerEntity> playerEntities) {
+	    for (PlayerEntity playerEntity : playerEntities) {
+	        if (playerEntity instanceof ComputerDealer) {
+	         
+	            if (playerEntity.getHand().getHandValue() == 21 && playerEntity.getHand().getCardsInHand().size() == 2) {
+	                return true;
+	            }
+	        }
+	    }
+	    return false;
+	}
+	
+	default boolean playerHasBlackjack(List<PlayerEntity> playerEntities) {
+	    for (PlayerEntity playerEntity : playerEntities) {
+	        if (playerEntity instanceof HumanPlayer) {
+	         
+	            if (playerEntity.getHand().getHandValue() == 21 && playerEntity.getHand().getCardsInHand().size() == 2) {
+	                return true;
+	            }
+	        }
+	    }
+	    return false;
+	}
+	
+	default void playRound(List<PlayerEntity> playerEntities, Stack<Card> gameStack) {
+	    dealFirstCards(playerEntities, gameStack);
+
+	    if (dealerHasBlackjack(playerEntities)) {
+	        System.out.println("Dealer has blackjack!");
+	        // Handle the situation when the dealer has blackjack (e.g., pay out, end the round, etc.)
+	    } else {
+	        // Allow the player to make decisions (hit or stand)
+	    }
+	}
+	
+	
+
+
+	
+	default void dealFirstCards(List<PlayerEntity> playerEntities, Stack<Card> gameStack) {
+		
+		int xCounter = 50;
+		int yCounter = 80;
+		for(PlayerEntity pi : playerEntities) {
+			
+			if(pi instanceof ComputerDealer) {
+				for(int i = 0; i < 2; i++) {
+					if(i == 1) {
+						System.out.println("dealer card 2 dealt");
+						Card c = gameStack.pop();
+						c.setCardFaceDown(true);
+						c.setXY(pi.getHand().getNextCardZone());
+						
+						pi.getHand().addCardToHand(c);
+						xCounter = 50;
+						yCounter = 500;
+					} else {
+						System.out.println("dealer card 1 dealt");
+						Card c = gameStack.pop();
+						c.setXY(pi.getHand().getNextCardZone());
+						pi.getHand().addCardToHand(c);
+					}
+				}
+				
+			} else {
+				for(int i = 0; i < 2; i++) {
+					System.out.println("player card " + (i+1) +" dealt");
+					Card c = gameStack.pop();
+					System.out.println(yCounter);
+					c.setXY(pi.getHand().getNextCardZone());
+					System.out.println(c.getCardString());
+					pi.getHand().addCardToHand(c);
+				}
+				
+			}
+			
+			
+			}
+		
+		}
+		
+	}
+	
+	
+
+
+
+package dev.stephenpearson.model;
+
+import java.awt.Point;
+import java.awt.Rectangle;
+
+public class DealtCardZone extends GameZone {
+	
+	private Rectangle[] dealZones = new Rectangle[7];
+	private CardHolder[] cardHolders = new CardHolder[12];
+	private Point zonePoint;
+	private Point zoneCenterPoint;
+	private int holderPointer = 0;
+	
+	
+	
+
+	public DealtCardZone(String zoneName) {
+		super(zoneName);
+		zonePoint = super.getZoneRectangle().getLocation();
+		zoneCenterPoint = super.getZoneCenterPoint();
+		
+		initCardZones();
+		
+	}
+	
+	public void initCardZones() {
+		
+		int pointer1 = 0;
+		int pointer2 = 0;
+		for(int i = 0; i < cardHolders.length; i++) {
+			
+			if(i < 6) {
+				cardHolders[i] = new CardHolder(zonePoint.x + 30 + (80 * i), zonePoint.y + 10 + (0 * i));
+			} else {
+				cardHolders[i] = new CardHolder(zonePoint.x + 30 + (80 * pointer2++), zonePoint.y + 50 + (0 * pointer2));
+			
+			}
+			
+			//dealZones[i] = new Rectangle(zonePoint.x + 20 + (150 * i), zonePoint.y + 50);
+			
+		}
+		
+	}
+	
+	public Rectangle[] getDealZones() { 
+		return dealZones;
+	}
+	
+	public CardHolder getNextZone() {
+		
+		if(holderPointer < cardHolders.length) {
+			return cardHolders[holderPointer++];
+		} else {
+			System.out.println("no empty zones left");
+			
+			return null;
+		}
+		
+	}
+	
+	public int getHolderPointer() {
+		return holderPointer;
+	}
+
+}
+
+package dev.stephenpearson.model;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
+
+public class Deck {
+	
+	private Stack<Card> cardsInDeck;
+	
+	public Deck(Stack<Card> cards) {
+		
+		this.cardsInDeck = cards;
+		shuffleDeck();
+	}
+	
+	public List<Card> getCardsInDeck() {
+		return cardsInDeck;
+	}
+	
+	
+	public void shuffleDeck() {
+		Collections.shuffle(cardsInDeck);
+	}
+	
+	public void printDeckToConsole() {
+		for(Card c : cardsInDeck) {
+			System.out.println(c.getCardString());
+		}
+	}
+	
+	public Deck getDeck() {
+		return this;
+	}
+	
+	
+}
+
+package dev.stephenpearson.model;
+
+public class GameModel {
+	
+	
+	
+	public GameModel() {
+		
+		
+		
+	}
+
+}
+
+package dev.stephenpearson.model;
+
+public class GameState extends State {
+	
+    public GameState() {
+        this.state = StateEnum.GAME;
+    }
+}
+
+package dev.stephenpearson.model;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
+
+public class GameZone implements Renderable {
+	
+	private Zone zone;
+	private Rectangle zoneRect;
+	private Color zoneColor;
+	private Point zoneCenterPoint;
+	private HandHolder handHolder;
+	
+	
+	
+	private String zoneName;
+
+	public GameZone(String zoneName) {
+		
+		this.zoneName = zoneName;
+		zone = Zone.getZone(zoneName);
+		handHolder = new HandHolder(zoneCenterPoint);
+		zoneRect = new Rectangle(zone.x, zone.y, zone.w, zone.h);
+		zoneColor = zone.color;
+		zoneCenterPoint = new Point(zoneRect.x + zoneRect.width / 2, zoneRect.y + zoneRect.height / 2);
+		//System.out.println(String.format("Zone %s", zoneName) + " " +  zoneCenterPoint.getLocation().toString());
+		
+	}
+	
+	public Rectangle getZoneRectangle() {
+		return zoneRect;
+	}
+	
+	public Color getZoneColor() {
+		return zoneColor;
+	}
+	
+	public void draw(Graphics g) {
+		
+		g.setColor(zoneColor);
+		g.fillRect(zoneRect.x, zoneRect.y, zoneRect.width, zoneRect.height);
+		g.setColor(Color.BLACK);
+		g.drawString(zoneName, zoneRect.x + zoneRect.width /2, zoneRect.y + zoneRect.height /2);
+	}
+	
+	public String getZoneName() {
+		return zoneName;
+	}
+	
+	public Zone getZone() {
+		return zone;
+	}
+	
+	public Point getZoneCenterPoint() {
+		return zoneCenterPoint;
+	}
+	
+	public enum Zone {
+		
+		
+		
+		DEALER_HAND("dealerHand",0,0,600,200, new Color(86, 111, 119)),
+		PLAYER_HAND("playerHand",0,600,600,200, new Color(238, 138, 118)),
+		DECK("deck",600,0,200,200, new Color(225, 129, 73)),
+		BURNT_CARDS("graveyard",600,200,200,200, new Color(172, 218, 106)),
+		BET_STACK("betStack",600,400,200,200, new Color(223, 223, 133)),
+		CHIP_STACK("chipStack",600,600,200,200, new Color(140, 186, 181)),
+		GAME_ZONE("gameZone",0,200,600,400,new Color(153, 153, 255)),
+		MENU_ZONE("menuZone",100,100,400,400, new Color(124,245,142)),
+		BANK_ZONE("bank",100,100,100,100,new Color(100,100,100));
+		
+		private String zoneName;
+		private int x, y, w, h;
+		private Color color;
+		private static String[] zoneNames = new String[] {"deck","graveyard","dealerHand","playerHand","bank", "chipStack", "betStack", "menuZone", "gameZone"};
+		
+		
+		public static String[] getZoneNames() {
+			return zoneNames;
+		}
+
+		private Zone(String zoneName, int x, int y, int w, int h, Color color) {
+			this.zoneName = zoneName;
+			this.x = x;
+			this.y = y;
+			this.w = w;
+			this.h = h;
+			this.color = color;
+			
+		}
+		
+		public String getZoneName() {
+			return zoneName;
+		}
+		
+		
+		
+		public static Zone getZone(String zoneName) {
+		      for (Zone z : Zone.values()) {
+		          if (z.zoneName.equalsIgnoreCase(zoneName)) return z;
+		      }
+		      System.out.println(zoneName);
+		      throw new IllegalArgumentException("Zone not found");
+		   }
+		
+		
+		
+		
+		
+	}
+
+}
+
+package dev.stephenpearson.model;
+
+public class GUIValues {
+	
+	private static Integer placedBetAmount;
+	private static Integer currentBetAmount = 0;
+	private static boolean betJustPlaced = false;
+
+	public static Integer getPlacedBetAmount() {
+		return placedBetAmount;
+	}
+
+	public static void setPlacedBetAmount(Integer placedBetAmount) {
+		GUIValues.placedBetAmount = placedBetAmount;
+	}
+
+	public static Integer getCurrentBetAmount() {
+		return currentBetAmount;
+	}
+	
+	public static void increaseCurrentBetAmount(Integer amount) {
+		currentBetAmount += amount;
+	}
+
+	public static void setCurrentBetAmount(Integer currentBetAmount) {
+		GUIValues.currentBetAmount = currentBetAmount;
+	}
+
+	public static boolean isBetJustPlaced() {
+		return betJustPlaced;
+	}
+
+	public static void setBetJustPlaced(boolean betJustPlaced) {
+		GUIValues.betJustPlaced = betJustPlaced;
+	}
+
+	
+
+
+	
+	
+
+}
+
+package dev.stephenpearson.model;
+
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
+
+
+
+public class Hand {
+	
+	private List<Card> cardsInHand = new ArrayList<>();
+	private int numCardsInHand = 0;
+	private static int numberOfHands = 0;
+	private Card newCard;
+	private boolean handContainsAce = false;
+	private boolean handHasBlackjack = false;
+	private int aceCount = 0;
+	private List<Rectangle> cardZones; 
+	private int cardZoneCounter = 0;
+	private int handValue;
+	public boolean playerBust = false;
+	
+	private int cardZoneX = 100;
+	private int cardZoneY;
+	
+	public Hand(int cardZoneY) {
+		this.cardZoneY = cardZoneY;
+		initCardZones();
+		System.out.println("From Hand " + "Number of hands: " + ++numberOfHands);
+	}
+	
+	public void initCardZones() {
+		cardZones = new ArrayList<>();
+		int counter = 0;
+		for(int i = 0; i < 8; i++) {
+			if(i < 4) {
+				cardZones.add(new Rectangle(cardZoneX*counter+++80, cardZoneY,18*5,27*5));
+				if(i == 3) {
+					counter = 0;
+				}
+			} else if(i >= 4) {
+				cardZones.add(new Rectangle(cardZoneX*counter+++160, cardZoneY + 80,18*5,27*5));
+				
+			}
+		}
+	}
+	
+	public Rectangle getNextCardZone() {
+		
+		return cardZones.get(cardZoneCounter++);
+	}
+	
+	public void addCardToHand(Card c) {
+	    if (c.getRank() == Card.Rank.ACE) {
+	        aceCount++;
+	    }
+
+	    handValue += c.getFaceValue();
+	    
+	    cardsInHand.add(c);
+	    numCardsInHand++;
+	    newCard = c;
+
+	    calculateHandValue();
+	}
+	
+	public int getHandValue() {
+	    return handValue;
+	}
+	
+	public int getValueOfDealerFirstCard() {
+		return cardsInHand.get(0).getFaceValue();
+	}
+
+
+	
+	public void calculateHandValue() {
+	    int totalValue = 0;
+	    int aceCount = 0;
+
+	    for (Card card : cardsInHand) {
+	        int cardValue = card.getFaceValue();
+
+	        // Check if the card is an Ace
+	        if (card.getRank() == Card.Rank.ACE || card.getRank() == Card.Rank.ACE_ONE) {
+	            aceCount++;
+	        }
+	        totalValue += cardValue;
+	    }
+
+	    // Handle Aces
+	    while (totalValue > 21 && aceCount > 0) {
+	        totalValue -= 10;
+	        aceCount--;
+	    }
+
+	    handValue = totalValue;
+	    if(handValue == 21) {
+	    	System.out.println("you win");
+	    	playerBust = true;
+	    } else if(handValue > 21) {
+	    	System.out.println("you lose");
+	    	playerBust = false;
+	    }
+	}
+
+	
+	public List<Card> getCardsInHand() {
+		return cardsInHand;
+	}
+	
+	public void clear() {
+		cardsInHand.clear();
+		
+		cardZoneCounter = 0;
+	
+	}
+	
+	
+	
+	public Card getLastCardAdded() {
+		return cardsInHand.get(numCardsInHand-1);
+	}
+	
+	public void printHand() {
+		System.out.println("In Hand");
+		System.out.print("Cards in hand: ");
+		for(Card c : cardsInHand) {
+			System.out.print(c.getCardString() + " ");
+		}
+		System.out.println();
+	}
+	
+	public Card getNewCard() {
+		return newCard;
+	}
+	
+}
+
+package dev.stephenpearson.model;
+
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.util.List;
+
+public class HandHolder {
+	
+	private List<CardHolder> cardHolders;
+	private int holderPointer = 0;
+	private Point handHolderCenterPoint;
+	
+	
+	public HandHolder(Point zoneCenterPoint) {
+		
+			handHolderCenterPoint = zoneCenterPoint;
+	}
+	
+	public void addNewHandLocation(CardHolder cardHolder) {
+
+		cardHolders.add(cardHolder);
+		holderPointer++;
+	}
+
+}
+
+package dev.stephenpearson.model;
+
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class HandValueMessage {
+	
+	private Rectangle messageRectangle;
+	private String message;
+	private String boilerPlateMessage;
+	private static String defaultStartMessage = "Place a bet to start the game.";
+	private List<HandValueMessageObserver> observers;
+	
+	public HandValueMessage(int x, int y, int width, int height, String boilerPlateMessage) {
+		
+		this.observers = new ArrayList<>();
+		this.boilerPlateMessage = boilerPlateMessage;
+		messageRectangle = new Rectangle(x,y,width,height);
+		
+		
+	}
+	
+	 public void addObserver(HandValueMessageObserver observer) {
+	        observers.add(observer);
+	    }
+
+	 public void removeObserver(HandValueMessageObserver observer) {
+	        observers.remove(observer);
+	    }
+	 
+	 private void notifyHandValueMessageObserverObservers() {
+	        for (HandValueMessageObserver observer : observers) {
+	        	
+	            observer.update(this);
+	        }
+	    }
+
+	public Rectangle getMessageRectangle() {
+		return messageRectangle;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+	
+	public void setMessage(String message) {
+        this.message = message;
+        notifyHandValueMessageObserverObservers();
+    }
+	
+	
+
+	
+	public String getDefaultStartMessage() {
+		return defaultStartMessage;
+	}
+
+	public String getBoilerPlateMessage() {
+		return boilerPlateMessage;
+	}
+	
+	
+	
+
+}
+
+package dev.stephenpearson.model;
+
+public interface HandValueMessageObserver {
+	void update(HandValueMessage handValueMessage);
+}
+
+package dev.stephenpearson.model;
+
+public class HumanPlayer extends PlayerEntity {
+	
+	private boolean waitingForBet = true;
+	private PlayerBank playerBank;
+	
+	public HumanPlayer(int cardZoneY) {
+		super(cardZoneY);
+		init();
+	}
+	
+	public PlayerBank getPlayerBank() {
+		return playerBank;
+	}
+	
+	public boolean isBetPlaced() {
+		return waitingForBet;
+	}
+	
+	public void setBetPlaced(boolean b) {
+		
+		waitingForBet = b;
+		playerBank.setBetPlaced(b);
+	}
+	
+	public void update() {
+		if(playerBank.isBetPlaced()) {
+			waitingForBet = false;
+		}
+	}
+	
+	public void init() {
+		playerBank = new PlayerBank(1000);
+	}
+	
+	
+	
+
+}
+
+package dev.stephenpearson.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MenuMessage {
+    private String message;
+    private static String defaultStartMessage = "Place a bet to start the game.";
+    private List<MenuMessageObserver> observers;
+
+    public MenuMessage() {
+   
+        this.observers = new ArrayList<>();
+    }
+
+    public void addObserver(MenuMessageObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(MenuMessageObserver observer) {
+        observers.remove(observer);
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+        notifyMenuMessageObservers();
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    private void notifyMenuMessageObservers() {
+        for (MenuMessageObserver observer : observers) {
+        	
+            observer.update(this);
+        }
+    }
+
+	public String getDefaultStartMessage() {
+		return defaultStartMessage;
+	}
+}
+
+package dev.stephenpearson.model;
+
+public interface MenuMessageObserver {
+	void update(MenuMessage menuMessage);
+}
+
+package dev.stephenpearson.model;
+
+public class MenuState extends State {
+	
+	
+	
+    public MenuState() {
+        this.state = StateEnum.MENU;
+    }
+}
+
+
+
+
+
+package dev.stephenpearson.model;
+
+public class PlayerBank {
+	
+	private int tempBankSize;
+	private int bankSize;
+	private boolean playerBroke = false;
+	private String bankString;
+	private boolean firstBetPlaced = false;
+	private boolean betPlaced = false;
+	
+	
+	public PlayerBank(int bankSize) {
+		this.bankSize = bankSize;
+		this.tempBankSize = bankSize;
+		bankString = String.valueOf(bankSize);
+	}
+	
+	public int getBankSize() {
+		return bankSize;
+	}
+	
+	public void decreaseBank(int deduct) {
+		
+		
+			if(bankSize>=deduct) {
+				if(!firstBetPlaced) {
+					
+					bankSize -= deduct;
+					bankString = String.valueOf(bankSize);
+					
+					System.out.println("bank decreased - bank is: " + bankString);
+					if(bankSize <= 0) {
+						playerBroke = true;
+						System.out.println("player broke");
+					}
+				}
+				
+			}
+		
+		
+		
+		
+		
+		
+	}
+	
+	public void increaseBank(int increase) {
+		bankSize += increase;
+		bankString = String.valueOf(bankSize);
+	}
+
+	public boolean isPlayerBroke() {
+		return playerBroke;
+	}
+	
+	public String getBankString() {
+		return bankString;
+	}
+	
+	public void setBetPlaced(boolean b) {
+		
+	}
+	
+	public boolean isBetPlaced() {
+		return firstBetPlaced;
+	}
+	
+	
+	
+}
+
+package dev.stephenpearson.model;
+
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JButton;
+
+import dev.stephenpearson.controller.InputHandler;
+
+public class PlayerControlPanel {
+	
+	private JButton bet10Button;
+	private JButton bet20Button;
+	private JButton	bet50Button;
+	private JButton bet100Button;
+	private JButton hitButton;
+	private JButton standButton;
+           
+	private Rectangle bet10ButtonRectangle;
+	private Rectangle bet20ButtonRectangle;
+	private Rectangle bet50ButtonRectangle;
+	private Rectangle bet100ButtonRectangle;
+	private Rectangle hitButtonRectangle;
+	private Rectangle standButtonRectangle;
+	
+	private Rectangle panelRectangle;
+	private Point panelPoint;
+	private Dimension panelDimension;
+	private Dimension buttonDimension;
+	
+	private HashMap<String, JButton> playerButtonMap = new HashMap<>();
+	
+	private InputHandler inputHandler;
+	
+	public PlayerControlPanel() {
+		
+		panelPoint = new Point(600,600);
+		panelDimension = new Dimension(200,200);
+		buttonDimension = new Dimension(80,40);
+		initRectangles();
+		initButtons();
+		
+		
+	}
+	
+	public void initRectangles() {
+        
+		panelRectangle = new Rectangle(panelPoint, panelDimension);
+		
+		bet10ButtonRectangle = new Rectangle(panelRectangle.x + 10, panelRectangle.y + 20,buttonDimension.width,buttonDimension.height);
+		bet20ButtonRectangle = new Rectangle(panelRectangle.x + 10 + 100, panelRectangle.y + 20,buttonDimension.width,buttonDimension.height);
+		bet50ButtonRectangle = new Rectangle(panelRectangle.x + 10, panelRectangle.y +20 + buttonDimension.height + 15,buttonDimension.width,buttonDimension.height); 
+		bet100ButtonRectangle = new Rectangle(panelRectangle.x + 10 + 100, panelRectangle.y +20 + buttonDimension.height + 15,buttonDimension.width,buttonDimension.height);
+		
+		hitButtonRectangle = new Rectangle(panelRectangle.x + 10, panelRectangle.y +20 + buttonDimension.height + buttonDimension.height  + 15 + 15,buttonDimension.width,buttonDimension.height);    
+		standButtonRectangle = new Rectangle(panelRectangle.x + 10 + 100, panelRectangle.y +20 + buttonDimension.height + buttonDimension.height  + 15 + 15,buttonDimension.width,buttonDimension.height);  
+	}
+	
+	public void passInputHandler(InputHandler inputHandler) {
+		this.inputHandler = inputHandler;
+	}
+	
+	public void initButtons() {
+		
+		bet10Button = new JButton("Bet 10");
+		bet10Button.setBounds(bet10ButtonRectangle);
+		bet10Button.addActionListener(e -> betButtonPressed(e,10));
+		playerButtonMap.put("bet10Button", bet10Button);
+		
+		bet20Button = new JButton("Bet 20");
+		bet20Button.setBounds(bet20ButtonRectangle);
+		bet20Button.addActionListener(e -> betButtonPressed(e,20));
+		playerButtonMap.put("bet20Button", bet20Button);
+		
+		bet50Button = new JButton("Bet 50");
+		bet50Button.setBounds(bet50ButtonRectangle);
+		bet50Button.addActionListener(e -> betButtonPressed(e,50));
+		playerButtonMap.put("bet50Button", bet50Button);
+		
+		bet100Button = new JButton("Bet 100");
+		bet100Button.setBounds(bet100ButtonRectangle);
+		bet100Button.addActionListener(e -> betButtonPressed(e,100));
+		playerButtonMap.put("bet100Button", bet100Button);
+		
+		
+		hitButton = new JButton("HIT");
+		hitButton.setBounds(hitButtonRectangle);
+		hitButton.addActionListener(e -> hitButtonPressed());
+		playerButtonMap.put("hitButton", hitButton);
+		
+		standButton = new JButton("STAND");
+		standButton.setBounds(standButtonRectangle);
+		standButton.addActionListener(e -> standButtonPressed());
+		playerButtonMap.put("standButton", standButton);
+		
+	}
+	public HashMap<String,JButton> getButtonMap() {
+		return playerButtonMap;
+	}
+	
+	public void betButtonPressed(ActionEvent e, int betAmount) {
+		
+		switch(betAmount) {
+		
+		case 10:
+			System.out.println("bet 10");
+			inputHandler.handleBetInput(betAmount);
+			break;
+		case 20:
+			System.out.println("bet 20");
+			inputHandler.handleBetInput(betAmount);
+			break;
+		case 50:
+			System.out.println("bet 50");
+			inputHandler.handleBetInput(betAmount);
+			break;
+		case 100:
+			System.out.println("bet 100");
+			inputHandler.handleBetInput(betAmount);
+			break;
+		}
+		
+	}
+	
+	public void standButtonPressed() {
+		System.out.println("STAND");
+	}
+	
+	public void hitButtonPressed() {
+		System.out.println("HIT");
+	}
+	
+	
+
+
+	
+	
+	
+
+}
+
+package dev.stephenpearson.model;
+
+import dev.stephenpearson.model.GameZone.Zone;
+
+public abstract class PlayerEntity {
+	private Hand hand;
+	private Zone handZone;
+	private GameZone playerZone;
+	private String playerType;
+	private boolean hasHand = false;
+	
+	public PlayerEntity(int zoneY) {
+		
+		hand = new Hand(zoneY);
+		
+	}
+	
+	public void setPlayerZone(GameZone playerZone) {
+		this.playerZone = playerZone;
+	}
+	
+	public Hand getHand() {
+		return hand;
+	}
+	
+	public void setPlayerType(String playerType) {
+		this.playerType = playerType;
+	}
+	
+	public void setHandZone(Zone handZone) {
+		this.handZone = handZone;
+	}
+	
+	public String getPlayerType() {
+		return playerType;
+	}
+	
+	public Zone getZone() {
+		return handZone;
+	}
+	
+	public GameZone getPlayerZone() {
+		return playerZone;
+	}
+	
+	public boolean hasHand() {
+		return hasHand;
+	}
+	
+	public void setHasHand(boolean b) {
+		hasHand = b;
+	}
+
+	public abstract void update();
+	
+	
+	
+	
+	
+	
+	
+
+}
+
+package dev.stephenpearson.model;
+
+public class PlayerHandValueMessage extends HandValueMessage {
+
+	public PlayerHandValueMessage(int x, int y, int width, int height, String boilerPlateMessage) {
+		super(x, y, width, height, boilerPlateMessage);
+		// TODO Auto-generated constructor stub
+	}
+
+}
+
+package dev.stephenpearson.model;
+
+import java.awt.Graphics;
+
+public interface Renderable {
+	
+	public void draw(Graphics g);
+
+
+}
+
+package dev.stephenpearson.model;
+
+import java.awt.image.BufferedImage;
+
+public class Sprite {
+	
+	private BufferedImage image;
+	
+	public Sprite() {
+		
+		
+	}
+	
+	public void setSpriteImage(BufferedImage image) {
+		this.image = image;
+	}
+
+}
+
+package dev.stephenpearson.model;
+
+import java.awt.image.BufferedImage;
+
+public class SpriteSheet {
+	
+	BufferedImage spriteSheet;
+	
+	public SpriteSheet() {
+		
+		
+		
+	}
+	
+	public void loadSpriteSheet() {
+		
+		
+		
+	}
+
+}
+
+package dev.stephenpearson.model;
+
+public abstract class State {
+	
+	protected StateEnum state;
+	
+	
+	public enum StateEnum {
+	MENU,
+	GAME,
+	EXIT
+	}
+
+
+	public StateEnum getState() {
+		return state;
+	}
+
+
+	public void setState(StateEnum state) {
+		this.state = state;
+	}
+	
+	
+}
+
+package dev.stephenpearson.model;
+
+import java.awt.Rectangle;
+import java.util.HashMap;
+
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+
+public class TextAreas {
+	
+	private static HashMap<String, JLabel> textAreas = new HashMap<>();
+	
+	private Rectangle bankRectangle;
+	private PlayerBank playerBank;
+	private JTextArea bankArea;
+	private JLabel bankLabel;
+	
+	public TextAreas(PlayerBank playerBank) {
+		this.playerBank = playerBank;
+		initTextAreas();
+		
+	}
+	
+	public void initTextAreas() {
+		//System.out.println("text area made");
+		bankRectangle = new Rectangle(625,550,150,40);
+		bankLabel = new JLabel("Bank account: "+playerBank.getBankString(),SwingConstants.CENTER);
+		bankLabel.setBounds(bankRectangle);
+		bankLabel.setOpaque(true);
+		bankArea = new JTextArea(playerBank.getBankString());
+		bankArea.setBounds(bankRectangle);
+		textAreas.put("BankArea", bankLabel);
+	}
+	
+	public void updateTextAreas() {
+		bankLabel.setText(playerBank.getBankString());
+	}
+	
+	public HashMap<String, JLabel> getTextAreasMap() {
+		return textAreas;
+	}
+
+}
+
+package dev.stephenpearson.view;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.util.Arrays;
+import java.util.Optional;
+
+import javax.swing.JButton;
+
+
+public class Button extends JButton {
+	
+
+	private ButtonAction buttonAction;
+	
+	public Button(int x, int y, int width, int height, String buttonText) {
+		super(buttonText);
+		buttonAction = ButtonAction.getButtonAction(buttonText).orElse(null);
+		
+		setBounds(x, y, width, height);
+	    //setForeground(new Color(156,165,159));
+	}
+	
+	public ButtonAction getButtonAction() {
+		return buttonAction;
+	}
+
+	public enum ButtonAction {
+	    EXIT("Exit"),
+	    START("Start"),
+	    HIT("Hit"),
+	    STAND("Stand"),
+	    RESET("Reset"),
+	    BET10("Bet 10"),
+	    BET50("Bet 50"),
+	    PLACEBET("Place bet"),
+	    CLEARBET("Clear bet"),
+	    MENU("Menu");
+		
+		private String buttonText;
+		
+		ButtonAction(String buttonText) {
+			this.buttonText = buttonText;
+		}
+		
+		public static Optional<ButtonAction> getButtonAction(String buttonText) {
+		
+			return Arrays.stream(values())
+                    .filter(action -> action.buttonText.equalsIgnoreCase(buttonText))
+                    .findFirst();
+		}
+		
+	}
+	
+	
+	
+
+}
+
+package dev.stephenpearson.view;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.util.Map;
+import java.util.function.Consumer;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import dev.stephenpearson.controller.SpriteController;
+import dev.stephenpearson.model.GUIValues;
+import dev.stephenpearson.model.State;
+import dev.stephenpearson.model.State.StateEnum;
+import dev.stephenpearson.view.Button.ButtonAction;
+
+
+public class GameWindow extends JPanel implements StateObserver, GuiObserver{
+	
+	private static final int PANEL_WIDTH = 800;
+	private static final int PANEL_HEIGHT = 800;
+
+
+	private static JFrame windowFrame;
+	private State currentGameState;
+	
+	private GUI gui;
+	
+
+	public GameWindow(State currentGameState, Consumer<ButtonAction> onButtonClick) {
+		this.currentGameState = currentGameState;
+		
+		gui = new GUI(onButtonClick);
+		setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+		setLayout(null);
+		
+		windowFrame = new JFrame();
+		windowFrame.setResizable(false);
+		windowFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		windowFrame.add(this);
+		
+		windowFrame.pack();
+		windowFrame.setLocationRelativeTo(null);
+		windowFrame.setVisible(true);
+		updateButtons();
+		
+	}
+	
+
+	public void render() {
+		repaint();
+	}
+	
+	
+	@Override
+    public void onStateChanged(State newState) {
+		System.out.println("onStateChanged triggered");
+        this.currentGameState = newState;
+        updateButtons();
+    }
+	
+	@Override
+	public void onGuiUpdate() {
+		repaint();
+	}
+	
+	private void updateButtons() {
+	    removeAll();
+
+	
+
+	    switch (currentGameState.getState()) {
+	        case MENU:
+	        
+	            for (Button b : gui.getMenuButtons()) {
+	                System.out.println("Adding menu button: " + b.getText());
+	                add(b);
+	            }
+	            break;
+
+	        case GAME:
+	            for (Button b : gui.getGameButtons()) {
+	                System.out.println("Adding game button: " + b.getText());
+	                add(b);
+	            }
+	            break;
+
+	        default:
+	            System.out.println("error occurred");
+	            break;
+	    }
+
+	    revalidate();
+	    repaint();
+	}
+
+
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		System.out.println("painting");
+		g.setColor(new Color(75,79,76));
+		
+		g.fillRect(0, 0, this.getWidth(), this.getHeight());
+		
+		switch(currentGameState.getState()) {
+		
+		case MENU:
+			
+			g.setColor(new Color(75,79,76));
+		    g.fillRect(0, 0, this.getWidth(), this.getHeight());
+			gui.paintMenuElements(g);
+			
+
+		    break;
+		
+		case GAME:
+			g.setColor(new Color(53,101,77));
+			g.fillRect(0, 0, this.getWidth(), this.getHeight());
+			
+			
+			gui.paintMenus(g);
+			gui.paintTableElements(g);
+			
+			
+		
+			//draw all cards
+//			int x = 0;
+//			int y = 50;
+//			int counter = 0;
+//			for(Map.Entry<String, BufferedImage> b : SpriteController.getCardImageMap().entrySet()) {
+//				
+//				g.drawImage(b.getValue(),x,y,b.getValue().getWidth()*3, b.getValue().getHeight()*3,null);
+//				x+=60;
+//				counter++;
+//				if(counter >= 13) {
+//					y+=80;
+//					x = 0;
+//					counter = 0;
+//				}
+//			}
+			
+			
+			
+
+			break;
+			
+		default:
+			System.out.println("error occured");
+			break;
+		}
+		
+		
+	}
+	public GUI getGui() {
+		return gui;
+	}
+	
+	public void resetWindow() {
+		removeAll();
+		revalidate();
+		repaint();
+	}
+
+
+	
+
+}
+
+package dev.stephenpearson.view;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
+
+import dev.stephenpearson.controller.BetPotMessage;
+import dev.stephenpearson.controller.BetPotMessageObserver;
+import dev.stephenpearson.controller.PlayerBankMessage;
+import dev.stephenpearson.controller.PlayerBankMessageObserver;
+import dev.stephenpearson.model.Card;
+import dev.stephenpearson.model.Constants;
+import dev.stephenpearson.model.DealerHandValueMessage;
+import dev.stephenpearson.model.HandValueMessage;
+import dev.stephenpearson.model.HandValueMessageObserver;
+import dev.stephenpearson.model.MenuMessage;
+import dev.stephenpearson.model.MenuMessageObserver;
+import dev.stephenpearson.model.PlayerHandValueMessage;
+import dev.stephenpearson.model.Renderable;
+import dev.stephenpearson.view.Button.ButtonAction;
+
+
+
+public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBankMessageObserver, HandValueMessageObserver{
+	
+	private String topMenuString;
+	private String betPotMessageString;
+	private String playerBankMessageString;
+	private String playerHandValueMessage;
+	private String dealerHandValueMessage;
+	
+	private Rectangle topMenu;
+	private Rectangle bottomMenu;
+	private Rectangle betPotMessageZone;
+	private Rectangle playerBankMessageZone;
+	private Rectangle dealerHandValueMessageZone;
+	private Rectangle playerHandValueMessageZone;
+	
+	private List<Button> menuButtons;
+	private List<Button> gameButtons;
+	
+	private Button exitButton;
+	private Button startButton;
+	private Button resetButton;
+	private Button returnToMenuButton;
+	
+	//bottom row buttons
+	private Button hitButton;
+	private Button standButton;
+	private Button bet10;
+	private Button bet50;
+	private Button placeBet;
+	private Button clearBet;
+	private Button splitButton;
+	private Button doubleButton;
+	
+	
+	private int buttonWidth = Constants.ViewConstants.BUTTON_WIDTH;
+	private int buttonHeight = Constants.ViewConstants.BUTTON_HEIGHT;
+	
+	private Consumer<ButtonAction> onButtonClick;
+	private List<GuiObserver> guiObservers = new ArrayList<>();
+	
+	private boolean drawCards = false;
+	private List<Renderable> cardsOnScreen = new ArrayList<>();
+	
+	
+
+	
+	public GUI(Consumer<ButtonAction> onButtonClick) {
+		betPotMessageString = "0";
+		playerBankMessageString = "1000";
+		menuButtons = new ArrayList<>();
+		gameButtons = new ArrayList<>();
+		initButtons();
+		topMenu = new Rectangle(0,0,Constants.ViewConstants.PANEL_WIDTH, 50);
+		bottomMenu = new Rectangle(0,Constants.ViewConstants.PANEL_HEIGHT-100,Constants.ViewConstants.PANEL_WIDTH, 100);
+		betPotMessageZone = new Rectangle(bet10.getX(), bottomMenu.y,bet10.getWidth()*4,100);
+		playerBankMessageZone = new Rectangle(0, bottomMenu.y,bet10.getWidth()*4,100);
+		dealerHandValueMessageZone = new Rectangle(0, 50,bet10.getWidth()*4,100);
+		playerHandValueMessageZone = new Rectangle(0, playerBankMessageZone.y - 50,bet10.getWidth()*4,100);
+		
+		this.onButtonClick = onButtonClick;
+		
+		initActionListeners();
+	}
+	
+	public void initButtons() {
+		
+		exitButton = new Button(Constants.ViewConstants.PANEL_CENTER_X - Constants.ViewConstants.BUTTON_WIDTH/2,Constants.ViewConstants.PANEL_CENTER_Y+Constants.ViewConstants.BUTTON_HEIGHT,buttonWidth,buttonHeight,"Exit");
+		startButton = new Button(Constants.ViewConstants.PANEL_CENTER_X - Constants.ViewConstants.BUTTON_WIDTH/2,Constants.ViewConstants.PANEL_CENTER_Y-Constants.ViewConstants.BUTTON_HEIGHT,buttonWidth,buttonHeight,"Start");
+		
+		//bottom menu
+		hitButton = new Button(0,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT,buttonWidth,buttonHeight,"Hit");
+		standButton = new Button(hitButton.getBounds().x+hitButton.getBounds().width,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT,buttonWidth,buttonHeight,"Stand");
+		placeBet = new Button(Constants.ViewConstants.PANEL_WIDTH - Constants.ViewConstants.BUTTON_WIDTH,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT, buttonWidth, buttonHeight,"Place bet");
+		clearBet = new Button(Constants.ViewConstants.PANEL_WIDTH - Constants.ViewConstants.BUTTON_WIDTH * 2,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT, buttonWidth, buttonHeight,"Clear bet");
+		
+		bet50 = new Button(Constants.ViewConstants.PANEL_WIDTH - Constants.ViewConstants.BUTTON_WIDTH * 3,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT, buttonWidth, buttonHeight,"Bet 50");
+		bet10 = new Button(Constants.ViewConstants.PANEL_WIDTH - Constants.ViewConstants.BUTTON_WIDTH * 4,Constants.ViewConstants.PANEL_HEIGHT-Constants.ViewConstants.BUTTON_HEIGHT, buttonWidth, buttonHeight,"Bet 10");
+		
+		//top menu
+		resetButton = new Button(Constants.ViewConstants.PANEL_WIDTH-Constants.ViewConstants.BUTTON_WIDTH,0,buttonWidth,buttonHeight,"Reset");
+		returnToMenuButton = new Button(0,0,buttonWidth,buttonHeight,"Menu");
+		
+		menuButtons.add(exitButton);
+		menuButtons.add(startButton);
+		
+		gameButtons.add(hitButton);
+		gameButtons.add(standButton);
+		gameButtons.add(resetButton);
+		gameButtons.add(returnToMenuButton);
+		gameButtons.add(bet10);
+		gameButtons.add(bet50);
+		gameButtons.add(clearBet);
+		gameButtons.add(placeBet);
+		
+		
+	}
+	
+	public void initActionListeners() {
+		
+		for(Button b : menuButtons) {
+			b.addActionListener(e -> onButtonClick.accept(b.getButtonAction()));
+		}
+		
+		for(Button b : gameButtons) {	
+			b.addActionListener(e -> onButtonClick.accept(b.getButtonAction()));
+		}
+		
+	}
+
+	public List<Button> getMenuButtons() {
+		return menuButtons;
+	}
+
+	public void setMenuButtons(List<Button> menuButtons) {
+		this.menuButtons = menuButtons;
+	}
+
+	public List<Button> getGameButtons() {
+		return gameButtons;
+	}
+
+	public void setGameButtons(List<Button> gameButtons) {
+		this.gameButtons = gameButtons;
+	}
+	
+	public void paintMenus(Graphics g) {
+		
+		g.setColor(new Color(229,229,229));
+		g.fillRect(topMenu.x, topMenu.y, topMenu.width, topMenu.height);
+		g.fillRect(bottomMenu.x, bottomMenu.y, bottomMenu.width, bottomMenu.height);
+		g.setColor(new Color(188,186,217));
+		g.fillRect(betPotMessageZone.x, betPotMessageZone.y, betPotMessageZone.width, betPotMessageZone.height/2);
+		g.setColor(new Color(156,154,177));
+		g.fillRect(playerBankMessageZone.x, playerBankMessageZone.y, playerBankMessageZone.width, playerBankMessageZone.height/2);
+		
+		
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setFont(new Font("system", Font.BOLD, 15));
+		
+		
+		g2d.setColor(Color.BLACK);
+		g2d.setRenderingHint(
+		        RenderingHints.KEY_TEXT_ANTIALIASING,
+		        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		
+		
+		Rectangle2D topMenuStringBounds = g2d.getFontMetrics().getStringBounds(topMenuString, g2d);
+		g2d.drawString(topMenuString, (int) (Constants.ViewConstants.PANEL_CENTER_X - topMenuStringBounds.getWidth()/2), (int) (topMenuStringBounds.getHeight()/2) + topMenu.height/2);
+		g2d.setFont(new Font("system", Font.BOLD, 25));
+		Rectangle2D betPotStringBounds = g2d.getFontMetrics().getStringBounds(betPotMessageString,g2d);
+		g2d.drawString(betPotMessageString, (int) (betPotMessageZone.getCenterX() - betPotStringBounds.getWidth()/2), (int) (betPotMessageZone.getCenterY() - betPotStringBounds.getHeight()/2));
+		g2d.setFont(new Font("system", Font.BOLD, 25));
+		Rectangle2D playerBankStringBounds = g2d.getFontMetrics().getStringBounds(playerBankMessageString,g2d);
+		g2d.drawString(playerBankMessageString, (int) (playerBankMessageZone.getCenterX() - playerBankStringBounds.getWidth()/2), (int) (playerBankMessageZone.getCenterY() - playerBankStringBounds.getHeight()/2));
+		
+		
+		
+		
+	}
+	
+	public void paintTableElements(Graphics g) {
+		
+		if(drawCards) {
+			for(Renderable r : cardsOnScreen) {
+				r.draw(g);
+				g.setColor(new Color(102,153,153));
+				g.fillRect(dealerHandValueMessageZone.x, dealerHandValueMessageZone.y, dealerHandValueMessageZone.width, dealerHandValueMessageZone.height/2);
+				g.fillRect(playerHandValueMessageZone.x, playerHandValueMessageZone.y, playerHandValueMessageZone.width, playerHandValueMessageZone.height/2);
+				Graphics2D g2d = (Graphics2D) g;
+				g2d.setFont(new Font("system", Font.BOLD, 25));
+				g2d.setColor(Color.BLACK);
+				g2d.setRenderingHint(
+				        RenderingHints.KEY_TEXT_ANTIALIASING,
+				        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+				Rectangle2D playerHandValueMessageBounds = g2d.getFontMetrics().getStringBounds(playerHandValueMessage, g2d);
+				g2d.drawString(playerHandValueMessage, (int) (playerHandValueMessageZone.getCenterX() - playerHandValueMessageBounds.getWidth()/2), (int) (playerHandValueMessageZone.getCenterY() - playerHandValueMessageBounds.getHeight()/2));
+				Rectangle2D dealerHandValueMessageBounds = g2d.getFontMetrics().getStringBounds(playerHandValueMessage, g2d);
+				g2d.drawString(dealerHandValueMessage, (int) (dealerHandValueMessageZone.getCenterX() - dealerHandValueMessageBounds.getWidth()/2), (int) (dealerHandValueMessageZone.getCenterY() - dealerHandValueMessageBounds.getHeight()/2));
+			}
+		}	
+	}
+	
+	public void paintMenuElements(Graphics g) {
+		Graphics2D g2d = (Graphics2D) g;
+		String welcome = "Welcome";
+		String to = "to";
+		String blackjack = "Blackjack!";
+		
+		
+		g2d.setFont(new Font("system", Font.BOLD, 50));
+		g2d.setColor(Color.WHITE);
+		g2d.setRenderingHint(
+		        RenderingHints.KEY_TEXT_ANTIALIASING,
+		        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		
+		Rectangle2D welcomeBounds = g2d.getFontMetrics().getStringBounds(welcome, g2d);
+		Rectangle2D toBounds = g2d.getFontMetrics().getStringBounds(to, g2d);
+		Rectangle2D blackjackBounds = g2d.getFontMetrics().getStringBounds(blackjack, g2d);
+		
+		
+		g2d.drawString(welcome, (int) (Constants.ViewConstants.PANEL_CENTER_X - welcomeBounds.getWidth()/2), 100);
+		g2d.drawString(to, (int) (Constants.ViewConstants.PANEL_CENTER_X - toBounds.getWidth()/2), 175);
+		g2d.drawString(blackjack, (int) (Constants.ViewConstants.PANEL_CENTER_X - blackjackBounds.getWidth()/2), 250);
+		
+	
+		
+		
+	}
+
+	
+	
+	public void addGuiObserver(GuiObserver observer) {
+        guiObservers.add(observer);
+    }
+	
+	public void removeGuiObserver(GuiObserver observer) {
+        guiObservers.remove(observer);
+    }
+
+    private void notifyGuiObservers() {
+        for (GuiObserver observer : guiObservers) {
+            observer.onGuiUpdate();
+        }
+    }
+
+	@Override
+	public void update(BetPotMessage betPotMessage) {
+		betPotMessageString = betPotMessage.getMessage();
+		notifyGuiObservers();
+		
+	}
+	
+	@Override
+	public void update(MenuMessage menuMessage) {
+		topMenuString = menuMessage.getMessage();
+		notifyGuiObservers();
+		
+	}
+
+	@Override
+	public void update(PlayerBankMessage playerBankMessage) {
+		playerBankMessageString = playerBankMessage.getMessage();
+		notifyGuiObservers();
+		
+	}
+	
+	@Override
+	public void update(HandValueMessage handValueMessage) {
+		if(handValueMessage instanceof PlayerHandValueMessage) {
+			this.playerHandValueMessage = handValueMessage.getBoilerPlateMessage() + handValueMessage.getMessage();
+		} else if(handValueMessage instanceof DealerHandValueMessage) {
+			this.dealerHandValueMessage = handValueMessage.getBoilerPlateMessage() + handValueMessage.getMessage();
+		}
+		
+	}
+
+	public void setDrawCards(boolean drawCards) {
+		this.drawCards = drawCards;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> void updateRenderableCards(List<T> cards) {
+		
+		cardsOnScreen.addAll((Collection<? extends Renderable>) cards);
+		notifyGuiObservers();
+	}
+	
+	public void init() {
+		drawCards = false;
+		cardsOnScreen.clear();
+		notifyGuiObservers();
+	}
+
+	
+	
+	}
+
+
+package dev.stephenpearson.view;
+
+public interface GuiObserver {
+	void onGuiUpdate();
+}
+
+package dev.stephenpearson.view;
+
+public class MenuScreen {
+
+}
+
+package dev.stephenpearson.view;
+
+import java.awt.Color;
+import java.awt.Graphics;
+
+public class PlayingTable {
+	
+	
+	public static void draw(Graphics g) {
+		
+		g.setColor(new Color(54,89,74));
+		g.fillRect(0, 0, 800, 800);
+		
+	}
+
+}
+
+package dev.stephenpearson.view;
+
+import dev.stephenpearson.model.State;
+
+public interface StateObserver {
+	    void onStateChanged(State newState);
+	}
+
+
+
+

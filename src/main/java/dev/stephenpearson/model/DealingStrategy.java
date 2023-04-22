@@ -24,8 +24,18 @@ public interface DealingStrategy  {
 		
 		for(PlayerEntity playerEntity : playerEntities) {
 			if(playerEntity instanceof HumanPlayer) {
+				Card c = gameStack.pop();
+				c.setXY(playerEntity.getHand().getNextCardZone());
+				playerEntity.getHand().addCardToHand(c);
+			}
+		}
 		
-				
+	}
+	
+	default void dealerHit(List<PlayerEntity> playerEntities, Stack<Card> gameStack) {
+		
+		for(PlayerEntity playerEntity : playerEntities) {
+			if(playerEntity instanceof ComputerDealer) {
 				Card c = gameStack.pop();
 				c.setXY(playerEntity.getHand().getNextCardZone());
 				playerEntity.getHand().addCardToHand(c);
@@ -49,21 +59,31 @@ public interface DealingStrategy  {
 	    return false;
 	}
 	
+	default boolean playerHasBlackjack(List<PlayerEntity> playerEntities) {
+	    for (PlayerEntity playerEntity : playerEntities) {
+	        if (playerEntity instanceof HumanPlayer) {
+	         
+	            if (playerEntity.getHand().getHandValue() == 21 && playerEntity.getHand().getCardsInHand().size() == 2) {
+	                return true;
+	            }
+	        }
+	    }
+	    return false;
+	}
+	
 	default void playRound(List<PlayerEntity> playerEntities, Stack<Card> gameStack) {
 	    dealFirstCards(playerEntities, gameStack);
 
 	    if (dealerHasBlackjack(playerEntities)) {
 	        System.out.println("Dealer has blackjack!");
-	        // Handle the situation when the dealer has blackjack (e.g., pay out, end the round, etc.)
+	      
 	    } else {
-	        // Allow the player to make decisions (hit or stand)
+	      
 	    }
 	}
 	
 	
 
-
-	
 	default void dealFirstCards(List<PlayerEntity> playerEntities, Stack<Card> gameStack) {
 		
 		int xCounter = 50;
@@ -73,7 +93,6 @@ public interface DealingStrategy  {
 			if(pi instanceof ComputerDealer) {
 				for(int i = 0; i < 2; i++) {
 					if(i == 1) {
-						System.out.println("dealer card 2 dealt");
 						Card c = gameStack.pop();
 						c.setCardFaceDown(true);
 						c.setXY(pi.getHand().getNextCardZone());
@@ -82,7 +101,6 @@ public interface DealingStrategy  {
 						xCounter = 50;
 						yCounter = 500;
 					} else {
-						System.out.println("dealer card 1 dealt");
 						Card c = gameStack.pop();
 						c.setXY(pi.getHand().getNextCardZone());
 						pi.getHand().addCardToHand(c);
@@ -91,11 +109,9 @@ public interface DealingStrategy  {
 				
 			} else {
 				for(int i = 0; i < 2; i++) {
-					System.out.println("player card " + (i+1) +" dealt");
+				
 					Card c = gameStack.pop();
-					System.out.println(yCounter);
 					c.setXY(pi.getHand().getNextCardZone());
-					System.out.println(c.getCardString());
 					pi.getHand().addCardToHand(c);
 				}
 				

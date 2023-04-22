@@ -28,6 +28,13 @@ public abstract class HandValueMessage {
 	 public void removeObserver(HandValueMessageObserver observer) {
 	        observers.remove(observer);
 	    }
+	 
+	 private void notifyHandValueMessageObserverObservers() {
+	        for (HandValueMessageObserver observer : observers) {
+	        	
+	            observer.update(this);
+	        }
+	    }
 
 	public Rectangle getMessageRectangle() {
 		return messageRectangle;
@@ -42,12 +49,7 @@ public abstract class HandValueMessage {
         notifyHandValueMessageObserverObservers();
     }
 	
-	private void notifyHandValueMessageObserverObservers() {
-        for (HandValueMessageObserver observer : observers) {
-        	
-            observer.update(this);
-        }
-    }
+	
 
 	
 	public String getDefaultStartMessage() {

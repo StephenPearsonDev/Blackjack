@@ -12,21 +12,16 @@ import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
-import dev.stephenpearson.model.SpriteSheet;
 
 public class SpriteController {
-	
-	private List<SpriteSheet> spriteSheetList = new ArrayList<>();
+
 	private static Map<String, BufferedImage> cardImageMap = new LinkedHashMap<>();
-	
 
 	private String[] suitNames = new String[] {"HEARTS","DIAMONDS","SPADES","CLUBS"};
 	private String[] cardValues = new String[] {"ACE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", 
 												"NINE","TEN","JACK","QUEEN","KING"};
-	
-	
+
 	public SpriteController() {
-		
 		processCardSheet();
 	}
 	
@@ -56,34 +51,21 @@ public class SpriteController {
 					cardCounter++;
 				}
 				counter = 0;
-				
-				y+=height+1;
-				
-				
+				y+=height+1;	
 			}
 			
 			BufferedImage cardBack = cardSheet.getSubimage(19, 109, width, height);
 			cardImageMap.put("CARDBACK", cardBack);
 			
-			System.out.println(cardCounter + " cards added");
 			
 		} catch(IOException e) {
 			System.out.println("file not found");
 		}
-		
-		
-		
-		
-		
 	}
 	
-	public void addSpriteSheet(SpriteSheet spriteSheet) {
-		if(!spriteSheetList.contains(spriteSheet)) {
-			spriteSheetList.add(spriteSheet);
-		}
+	
 		
-		
-	}
+	
 	
 	public static Map<String, BufferedImage> getCardImageMap() {
 		return cardImageMap;

@@ -206,6 +206,8 @@ public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBa
 				        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 				Rectangle2D playerHandValueMessageBounds = g2d.getFontMetrics().getStringBounds(playerHandValueMessage, g2d);
 				g2d.drawString(playerHandValueMessage, (int) (playerHandValueMessageZone.getCenterX() - playerHandValueMessageBounds.getWidth()/2), (int) (playerHandValueMessageZone.getCenterY() - playerHandValueMessageBounds.getHeight()/2));
+				Rectangle2D dealerHandValueMessageBounds = g2d.getFontMetrics().getStringBounds(playerHandValueMessage, g2d);
+				g2d.drawString(dealerHandValueMessage, (int) (dealerHandValueMessageZone.getCenterX() - dealerHandValueMessageBounds.getWidth()/2), (int) (dealerHandValueMessageZone.getCenterY() - dealerHandValueMessageBounds.getHeight()/2));
 			}
 		}	
 	}

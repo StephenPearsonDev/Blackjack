@@ -18,9 +18,7 @@ public class Button extends JButton {
 	public Button(int x, int y, int width, int height, String buttonText) {
 		super(buttonText);
 		buttonAction = ButtonAction.getButtonAction(buttonText).orElse(null);
-		
 		setBounds(x, y, width, height);
-	    //setForeground(new Color(156,165,159));
 	}
 	
 	public ButtonAction getButtonAction() {
