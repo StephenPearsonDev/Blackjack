@@ -1,19 +1,11 @@
 package dev.stephenpearson.controller;
 
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.List;
-
-import dev.stephenpearson.model.Card;
-import dev.stephenpearson.model.ComputerDealer;
-import dev.stephenpearson.model.GameModel;
+import dev.stephenpearson.model.DealerHandValueMessage;
 import dev.stephenpearson.model.GameState;
-import dev.stephenpearson.model.HumanPlayer;
+import dev.stephenpearson.model.HandValueMessage;
 import dev.stephenpearson.model.MenuMessage;
 import dev.stephenpearson.model.MenuState;
-import dev.stephenpearson.model.Renderable;
+import dev.stephenpearson.model.PlayerHandValueMessage;
 import dev.stephenpearson.model.State;
 import dev.stephenpearson.view.Button.ButtonAction;
 import dev.stephenpearson.view.GameWindow;
@@ -24,6 +16,9 @@ public class GameController implements Runnable {
 	private static BetPotMessage betPotMessage;
 	private static MenuMessage menuMessage;
 	private static PlayerBankMessage playerBankMessage;
+	private static HandValueMessage playerHandValueMessage;
+	private static HandValueMessage dealerHandValueMessage;
+	
 	
 	private static SpriteController spriteController;
 	private static TableController tableController;
@@ -49,6 +44,9 @@ public class GameController implements Runnable {
 		menuMessage = new MenuMessage();
 		betPotMessage = new BetPotMessage();
 		playerBankMessage = new PlayerBankMessage();
+		dealerHandValueMessage = new DealerHandValueMessage(50,300,200,100,"Dealer hand: ");
+		playerHandValueMessage = new PlayerHandValueMessage(50,600,200,100,"Player hand: ");
+		
 		
 	
 	}
@@ -147,7 +145,10 @@ public class GameController implements Runnable {
 	        		tableController.wakeDealer();
 	        		gameWindow.getGui().updateRenderableCards(tableController.getComputerDealer().getHand().getCardsInHand());
 	        		gameWindow.getGui().updateRenderableCards(tableController.getHumanPlayer().getHand().getCardsInHand());
+	        		updatePlayerHandValueMessage(String.valueOf(tableController.getHumanPlayer().getHand().getHandValue()));
 	        		gameWindow.getGui().setDrawCards(true);
+	        		
+	        		
 	        		System.out.println("Value of player hand is: " + tableController.getHumanPlayer().getHand().getHandValue());
 	        		System.out.println("Value of dealer hand is: " + tableController.getComputerDealer().getHand().getHandValue());
 	        		tableController.playRound();
@@ -160,9 +161,13 @@ public class GameController implements Runnable {
 	        } 
 	    });
 		
+		dealerHandValueMessage.addObserver(gameWindow.getGui());
+		playerHandValueMessage.addObserver(gameWindow.getGui());
 		playerBankMessage.addObserver(gameWindow.getGui());
 		betPotMessage.addObserver(gameWindow.getGui());
 		menuMessage.addObserver(gameWindow.getGui());
+		
+		
 		gameWindow.getGui().addGuiObserver(gameWindow);
 		stateController.addObserver(gameWindow);
 		
@@ -176,6 +181,10 @@ public class GameController implements Runnable {
 	
 	public void updateBetPotMessage(String message) {
 		betPotMessage.setMessage(message);
+	}
+	
+	public void updatePlayerHandValueMessage(String message) {
+		playerHandValueMessage.setMessage(message);
 	}
 	
 	public void updatePlayerBankMessage(String message) {

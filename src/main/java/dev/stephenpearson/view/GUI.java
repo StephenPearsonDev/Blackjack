@@ -19,23 +19,31 @@ import dev.stephenpearson.controller.PlayerBankMessage;
 import dev.stephenpearson.controller.PlayerBankMessageObserver;
 import dev.stephenpearson.model.Card;
 import dev.stephenpearson.model.Constants;
+import dev.stephenpearson.model.DealerHandValueMessage;
+import dev.stephenpearson.model.HandValueMessage;
+import dev.stephenpearson.model.HandValueMessageObserver;
 import dev.stephenpearson.model.MenuMessage;
 import dev.stephenpearson.model.MenuMessageObserver;
+import dev.stephenpearson.model.PlayerHandValueMessage;
 import dev.stephenpearson.model.Renderable;
 import dev.stephenpearson.view.Button.ButtonAction;
 
 
 
-public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBankMessageObserver{
+public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBankMessageObserver, HandValueMessageObserver{
 	
 	private String topMenuString;
 	private String betPotMessageString;
 	private String playerBankMessageString;
+	private String playerHandValueMessage;
+	private String dealerHandValueMessage;
 	
 	private Rectangle topMenu;
 	private Rectangle bottomMenu;
 	private Rectangle betPotMessageZone;
 	private Rectangle playerBankMessageZone;
+	private Rectangle dealerHandValueMessageZone;
+	private Rectangle playerHandValueMessageZone;
 	
 	private List<Button> menuButtons;
 	private List<Button> gameButtons;
@@ -64,6 +72,8 @@ public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBa
 	
 	private boolean drawCards = false;
 	private List<Renderable> cardsOnScreen = new ArrayList<>();
+	
+	
 
 	
 	public GUI(Consumer<ButtonAction> onButtonClick) {
@@ -76,6 +86,8 @@ public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBa
 		bottomMenu = new Rectangle(0,Constants.ViewConstants.PANEL_HEIGHT-100,Constants.ViewConstants.PANEL_WIDTH, 100);
 		betPotMessageZone = new Rectangle(bet10.getX(), bottomMenu.y,bet10.getWidth()*4,100);
 		playerBankMessageZone = new Rectangle(0, bottomMenu.y,bet10.getWidth()*4,100);
+		dealerHandValueMessageZone = new Rectangle(0, 50,bet10.getWidth()*4,100);
+		playerHandValueMessageZone = new Rectangle(0, playerBankMessageZone.y - 50,bet10.getWidth()*4,100);
 		
 		this.onButtonClick = onButtonClick;
 		
@@ -153,6 +165,7 @@ public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBa
 		g.setColor(new Color(156,154,177));
 		g.fillRect(playerBankMessageZone.x, playerBankMessageZone.y, playerBankMessageZone.width, playerBankMessageZone.height/2);
 		
+		
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setFont(new Font("system", Font.BOLD, 15));
 		
@@ -172,6 +185,9 @@ public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBa
 		Rectangle2D playerBankStringBounds = g2d.getFontMetrics().getStringBounds(playerBankMessageString,g2d);
 		g2d.drawString(playerBankMessageString, (int) (playerBankMessageZone.getCenterX() - playerBankStringBounds.getWidth()/2), (int) (playerBankMessageZone.getCenterY() - playerBankStringBounds.getHeight()/2));
 		
+		
+		
+		
 	}
 	
 	public void paintTableElements(Graphics g) {
@@ -179,6 +195,17 @@ public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBa
 		if(drawCards) {
 			for(Renderable r : cardsOnScreen) {
 				r.draw(g);
+				g.setColor(new Color(102,153,153));
+				g.fillRect(dealerHandValueMessageZone.x, dealerHandValueMessageZone.y, dealerHandValueMessageZone.width, dealerHandValueMessageZone.height/2);
+				g.fillRect(playerHandValueMessageZone.x, playerHandValueMessageZone.y, playerHandValueMessageZone.width, playerHandValueMessageZone.height/2);
+				Graphics2D g2d = (Graphics2D) g;
+				g2d.setFont(new Font("system", Font.BOLD, 25));
+				g2d.setColor(Color.BLACK);
+				g2d.setRenderingHint(
+				        RenderingHints.KEY_TEXT_ANTIALIASING,
+				        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+				Rectangle2D playerHandValueMessageBounds = g2d.getFontMetrics().getStringBounds(playerHandValueMessage, g2d);
+				g2d.drawString(playerHandValueMessage, (int) (playerHandValueMessageZone.getCenterX() - playerHandValueMessageBounds.getWidth()/2), (int) (playerHandValueMessageZone.getCenterY() - playerHandValueMessageBounds.getHeight()/2));
 			}
 		}	
 	}
@@ -246,6 +273,16 @@ public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBa
 		notifyGuiObservers();
 		
 	}
+	
+	@Override
+	public void update(HandValueMessage handValueMessage) {
+		if(handValueMessage instanceof PlayerHandValueMessage) {
+			this.playerHandValueMessage = handValueMessage.getBoilerPlateMessage() + handValueMessage.getMessage();
+		} else if(handValueMessage instanceof DealerHandValueMessage) {
+			this.dealerHandValueMessage = handValueMessage.getBoilerPlateMessage() + handValueMessage.getMessage();
+		}
+		
+	}
 
 	public void setDrawCards(boolean drawCards) {
 		this.drawCards = drawCards;
@@ -263,6 +300,8 @@ public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBa
 		cardsOnScreen.clear();
 		notifyGuiObservers();
 	}
+
+	
 	
 	}
 

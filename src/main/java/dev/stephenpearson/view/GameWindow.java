@@ -101,15 +101,11 @@ public class GameWindow extends JPanel implements StateObserver, GuiObserver{
 	}
 
 
-	
-	
-
-	
-	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
 		g.setColor(new Color(75,79,76));
+		
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		
 		switch(currentGameState.getState()) {
