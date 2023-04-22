@@ -23,6 +23,7 @@ public class PlayerBankMessage {
 
     public void setMessage(String message) {
         this.message = message;
+        System.out.println("notifying bank message observer with bank message: " + message);
         notifyPlayerBankMessageObservers();
     }
 

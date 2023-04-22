@@ -46,7 +46,9 @@ public class PlayerBank {
 	}
 	
 	public void increaseBank(int increase) {
+		System.out.println("increase is: " + String.valueOf(increase));
 		bankSize += increase;
+		System.out.println("bank increased in player bank class. bank is: " + String.valueOf(bankSize));
 		bankString = String.valueOf(bankSize);
 	}
 

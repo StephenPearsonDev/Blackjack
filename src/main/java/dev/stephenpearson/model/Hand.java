@@ -69,6 +69,7 @@ public class Hand {
 	}
 	
 	public int getValueOfDealerFirstCard() {
+		System.out.println("size of hand is: " + cardsInHand.size());
 		return cardsInHand.get(0).getFaceValue();
 	}
 

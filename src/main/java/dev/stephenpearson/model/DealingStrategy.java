@@ -26,6 +26,7 @@ public interface DealingStrategy  {
 			if(playerEntity instanceof HumanPlayer) {
 				Card c = gameStack.pop();
 				c.setXY(playerEntity.getHand().getNextCardZone());
+				System.out.println("Adding to player hand: " + c.getCardString());
 				playerEntity.getHand().addCardToHand(c);
 			}
 		}
@@ -38,6 +39,7 @@ public interface DealingStrategy  {
 			if(playerEntity instanceof ComputerDealer) {
 				Card c = gameStack.pop();
 				c.setXY(playerEntity.getHand().getNextCardZone());
+				System.out.println("Adding to dealer hand: " + c.getCardString());
 				playerEntity.getHand().addCardToHand(c);
 			}
 		}
@@ -52,7 +54,8 @@ public interface DealingStrategy  {
 	        if (playerEntity instanceof ComputerDealer) {
 	         
 	            if (playerEntity.getHand().getHandValue() == 21 && playerEntity.getHand().getCardsInHand().size() == 2) {
-	                return true;
+	                System.out.println("Dealer Has Blackjack");
+	            	return true;
 	            }
 	        }
 	    }
@@ -95,14 +98,17 @@ public interface DealingStrategy  {
 					if(i == 1) {
 						Card c = gameStack.pop();
 						c.setCardFaceDown(true);
+						
 						c.setXY(pi.getHand().getNextCardZone());
 						
 						pi.getHand().addCardToHand(c);
+						System.out.println("Adding to dealer hand face down: " + c.getCardString());
 						xCounter = 50;
 						yCounter = 500;
 					} else {
 						Card c = gameStack.pop();
 						c.setXY(pi.getHand().getNextCardZone());
+						System.out.println("Adding to dealer hand: " + c.getCardString());
 						pi.getHand().addCardToHand(c);
 					}
 				}
@@ -113,6 +119,7 @@ public interface DealingStrategy  {
 					Card c = gameStack.pop();
 					c.setXY(pi.getHand().getNextCardZone());
 					pi.getHand().addCardToHand(c);
+					System.out.println("Adding to player hand: " + c.getCardString());
 				}
 				
 			}

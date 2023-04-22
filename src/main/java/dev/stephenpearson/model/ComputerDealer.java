@@ -45,13 +45,16 @@ public class ComputerDealer extends PlayerEntity implements DealingStrategy {
 	public boolean isSecondCardHidden() {
 		return secondCardHidden;
 	}
-
-	public void setSecondCardHidden(boolean secondCardHidden) {
-		this.secondCardHidden = secondCardHidden;
+	
+	public void setSecondCardHidden() {
+		secondCardHidden = true;
 	}
+
+	
 	
 	public void setAllCardsFaceUp() {
 		for(Card c : super.getHand().getCardsInHand()) {
+			System.out.println("secondcard set hidden to false");
 			secondCardHidden = false;
 			c.setCardFaceDown(false);
 		}

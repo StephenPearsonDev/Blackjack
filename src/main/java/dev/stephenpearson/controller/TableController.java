@@ -117,7 +117,6 @@ public class TableController {
 			
 		case STAND:
 			playOutDealerSolo();
-			checkIfBlackjack();
 			break;
 			
 		default:
@@ -161,7 +160,7 @@ public class TableController {
 		}
 		
 		public void playOutDealerSolo() {
-			((ComputerDealer)computerDealer).setAllCardsFaceUp();
+		
 
 			while (true) {
 		        int dealerHandValue = computerDealer.getHand().getHandValue();
@@ -170,15 +169,14 @@ public class TableController {
 		        if (dealerHandValue < 17 || (isSoft17 && dealerHandValue == 17)) {
 		  
 		            ((ComputerDealer)computerDealer).dealerHit(playerEntities, deckController.getMainGameStack());
-		         
+		          
+		            System.out.println(computerDealer.getHand().getHandValue());
 		        } else {
+		        	((ComputerDealer)computerDealer).setAllCardsFaceUp();
 		        	checkWhoWon();
 		            break;
 		        }
-		    }
-			
-			notifyTableControllerObserver(2);
-			
+		    }	
 		}
 		
 		public void checkWhoWon() {
@@ -186,19 +184,25 @@ public class TableController {
 			int playerHandTotal = humanPlayer.getHand().getHandValue();
 			int dealerHandTotal = computerDealer.getHand().getHandValue();
 			if(humanPlayer.getHand().isBust()) {
-				processDealerWin();
-				System.out.println("dealer won because player is bust");
+				if(!computerDealer.getHand().isBust()) {
+					processDealerWin();
+				
+				}
 			} else if (!humanPlayer.getHand().isBust()) {
-				if(playerHandTotal == dealerHandTotal) {
-					
+				if(computerDealer.getHand().isBust()) {
+					processPlayerWin();
+				
+				} else if(playerHandTotal == dealerHandTotal) {				
 					processDraw();
+				
 					System.out.println("it was a draw");
 				} else if (playerHandTotal > dealerHandTotal) {
 					processPlayerWin();
+					
 					System.out.println("player won");
 				} else {
 					processDealerWin();
-					System.out.println("dealer won");
+			
 				}
 			}
 
@@ -210,37 +214,29 @@ public class TableController {
 				if(((ComputerDealer)computerDealer).playerHasBlackjack(playerEntities)) {
 					((ComputerDealer)computerDealer).setAllCardsFaceUp();
 					notifyTableControllerObserver(3);
-					System.out.println("both players have blackjack");
-					processDraw();
-				
 				}
 			} else if(!((ComputerDealer)computerDealer).dealerHasBlackjack(playerEntities) && ((ComputerDealer)computerDealer).playerHasBlackjack(playerEntities)) {
 				((ComputerDealer)computerDealer).setAllCardsFaceUp();
-				notifyTableControllerObserver(3);
-				processPlayerWin();
-				System.out.println("player has blackjack");
-				
-			
+				//player got blackjack but dealer didn't
+				notifyTableControllerObserver(1);
+
 			} else if(((ComputerDealer)computerDealer).dealerHasBlackjack(playerEntities) && !((ComputerDealer)computerDealer).playerHasBlackjack(playerEntities)) {
 				((ComputerDealer)computerDealer).setAllCardsFaceUp();
-				notifyTableControllerObserver(3);
-				processDealerWin();
-				System.out.println("dealer has blackjack");
-				
-				
+				//dealer got blackjack but player didnt
+				notifyTableControllerObserver(2);
+
 			}
 		
 			
 		}
 		
 		public void processDraw() {
-			((HumanPlayer)humanPlayer).getPlayerBank().increaseBank(betPot.getSizeOfPot());
-			
+			notifyTableControllerObserver(6);
 		}
 		
+		
 		public void processPlayerWin() {
-			((HumanPlayer)humanPlayer).getPlayerBank().increaseBank(betPot.getSizeOfPot()*2);
-			
+			notifyTableControllerObserver(4);
 		}
 		
 		public void processDealerWin() {
