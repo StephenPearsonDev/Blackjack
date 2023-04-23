@@ -70,6 +70,8 @@ public class Hand {
 	
 	public int getValueOfDealerFirstCard() {
 		System.out.println("size of hand is: " + cardsInHand.size());
+		
+		
 		return cardsInHand.get(0).getFaceValue();
 	}
 
@@ -101,6 +103,10 @@ public class Hand {
 	    } else if(handValue > 21) {
 	    	playerBust = true;
 	    }
+	    
+	    if(cardsInHand.size() >= 2) {
+	    	System.out.println("Value of hand is: " + handValue);
+	    }
 	}
 
 	
@@ -119,7 +125,7 @@ public class Hand {
 	}
 	
 	public void printHand() {
-		System.out.println("In Hand");
+	
 		System.out.print("Cards in hand: ");
 		for(Card c : cardsInHand) {
 			System.out.print(c.getCardString() + " ");

@@ -54,6 +54,7 @@ public class TableController {
         for (TableControllerObserver observer : observers) {
         	
             observer.update(actionType);
+            System.out.println("After notifying table observer");
         }
     }
 	
@@ -152,7 +153,7 @@ public class TableController {
 	//Dealer methods
 		public void wakeDealer() {
 			((ComputerDealer)computerDealer).dealFirstCards(playerEntities, deckController.getMainGameStack());
-			checkIfBlackjack();
+		
 		}
 		
 		public boolean dealerHasBlackjack() {
@@ -164,15 +165,15 @@ public class TableController {
 
 			while (true) {
 		        int dealerHandValue = computerDealer.getHand().getHandValue();
+		        System.out.println("dealer hand value is: " + dealerHandValue);
 		        boolean isSoft17 = ((ComputerDealer)computerDealer).isSoft17();
 
 		        if (dealerHandValue < 17 || (isSoft17 && dealerHandValue == 17)) {
 		  
 		            ((ComputerDealer)computerDealer).dealerHit(playerEntities, deckController.getMainGameStack());
-		          
-		            System.out.println(computerDealer.getHand().getHandValue());
+ 
 		        } else {
-		        	((ComputerDealer)computerDealer).setAllCardsFaceUp();
+		        	System.out.println("Dealer standing - checking who won");
 		        	checkWhoWon();
 		            break;
 		        }
@@ -181,12 +182,13 @@ public class TableController {
 		
 		public void checkWhoWon() {
 			
+			
 			int playerHandTotal = humanPlayer.getHand().getHandValue();
 			int dealerHandTotal = computerDealer.getHand().getHandValue();
+			System.out.println("final hand totals are - Player: " + playerHandTotal + " Dealer: " +  dealerHandTotal);
 			if(humanPlayer.getHand().isBust()) {
 				if(!computerDealer.getHand().isBust()) {
 					processDealerWin();
-				
 				}
 			} else if (!humanPlayer.getHand().isBust()) {
 				if(computerDealer.getHand().isBust()) {
@@ -209,26 +211,27 @@ public class TableController {
 		}
 		
 		public void checkIfBlackjack() {
-			
-			if(((ComputerDealer)computerDealer).dealerHasBlackjack(playerEntities)) {
-				if(((ComputerDealer)computerDealer).playerHasBlackjack(playerEntities)) {
-					((ComputerDealer)computerDealer).setAllCardsFaceUp();
-					notifyTableControllerObserver(3);
-				}
-			} else if(!((ComputerDealer)computerDealer).dealerHasBlackjack(playerEntities) && ((ComputerDealer)computerDealer).playerHasBlackjack(playerEntities)) {
-				((ComputerDealer)computerDealer).setAllCardsFaceUp();
-				//player got blackjack but dealer didn't
-				notifyTableControllerObserver(1);
-
-			} else if(((ComputerDealer)computerDealer).dealerHasBlackjack(playerEntities) && !((ComputerDealer)computerDealer).playerHasBlackjack(playerEntities)) {
-				((ComputerDealer)computerDealer).setAllCardsFaceUp();
-				//dealer got blackjack but player didnt
-				notifyTableControllerObserver(2);
-
-			}
-		
-			
+		    boolean dealerBlackjack = ((ComputerDealer) computerDealer).dealerHasBlackjack(playerEntities);
+		    boolean playerBlackjack = ((ComputerDealer) computerDealer).playerHasBlackjack(playerEntities);
+		    
+		    System.out.println("Dealer has blackjack: " + dealerBlackjack);
+		    System.out.println("Player has blackjack: " + playerBlackjack);
+		    
+		    if (dealerBlackjack && playerBlackjack) {
+		    	((ComputerDealer) computerDealer).setSecondCardHidden(false);
+		        notifyTableControllerObserver(3); // Both dealer and player have blackjack
+		    } else if (!dealerBlackjack && playerBlackjack) {
+		    	((ComputerDealer) computerDealer).setSecondCardHidden(false);
+		    	notifyTableControllerObserver(1); // Player has blackjack, dealer doesn't
+		    } else if (dealerBlackjack && !playerBlackjack) {
+		    	System.out.println("In dealer has blackjack loop setting second card to visible");
+		    	((ComputerDealer) computerDealer).setSecondCardHidden(false);
+		    	System.out.println("card set to visibe, calling observer");
+		    	notifyTableControllerObserver(2); // Dealer has blackjack, player doesn't
+		    	System.out.println("After notifying");
+		    }
 		}
+
 		
 		public void processDraw() {
 			notifyTableControllerObserver(6);

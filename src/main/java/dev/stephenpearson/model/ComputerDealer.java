@@ -24,10 +24,11 @@ public class ComputerDealer extends PlayerEntity implements DealingStrategy {
 	        if (super.getHand().getCardsInHand().size() != 2) {
 	            return false;
 	        }
-
+	        
 	        Card firstCard = super.getHand().getCardsInHand().get(0);
 	        Card secondCard = super.getHand().getCardsInHand().get(1);
 
+	        
 	        boolean hasAce = (firstCard.getRank() == Rank.ACE) || (secondCard.getRank() == Rank.ACE);
 	        boolean hasSix = (firstCard.getRank() == Rank.SIX) || (secondCard.getRank() == Rank.SIX);
 
@@ -46,15 +47,14 @@ public class ComputerDealer extends PlayerEntity implements DealingStrategy {
 		return secondCardHidden;
 	}
 	
-	public void setSecondCardHidden() {
-		secondCardHidden = true;
+	public void setSecondCardHidden(boolean hiddenOrNot) {
+		secondCardHidden = hiddenOrNot;
 	}
 
 	
 	
 	public void setAllCardsFaceUp() {
 		for(Card c : super.getHand().getCardsInHand()) {
-			System.out.println("secondcard set hidden to false");
 			secondCardHidden = false;
 			c.setCardFaceDown(false);
 		}

@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
+import dev.stephenpearson.model.Card.Rank;
+import dev.stephenpearson.model.Card.Suit;
+
 public class Deck {
 	
 	private Stack<Card> cardsInDeck;
@@ -18,6 +21,8 @@ public class Deck {
 	public List<Card> getCardsInDeck() {
 		return cardsInDeck;
 	}
+	
+
 	
 	
 	public void shuffleDeck() {

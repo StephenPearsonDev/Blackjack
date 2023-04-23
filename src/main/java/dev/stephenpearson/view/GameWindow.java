@@ -79,7 +79,7 @@ public class GameWindow extends JPanel implements StateObserver, GuiObserver{
 	            System.out.println("error occurred");
 	            break;
 	    }
-
+	   
 	    revalidate();
 	    repaint();
 	}

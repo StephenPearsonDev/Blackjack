@@ -290,6 +290,7 @@ public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBa
 		this.drawCards = drawCards;
 	}
 	
+	
 	@SuppressWarnings("unchecked")
 	public <T> void updateRenderableCards(List<T> cards) {
 		
@@ -298,7 +299,7 @@ public class GUI implements MenuMessageObserver, BetPotMessageObserver, PlayerBa
 	}
 	
 	public void init() {
-		drawCards = false;
+
 		cardsOnScreen.clear();
 		notifyGuiObservers();
 	}

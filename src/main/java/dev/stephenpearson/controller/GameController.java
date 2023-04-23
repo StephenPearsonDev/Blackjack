@@ -34,6 +34,8 @@ public class GameController implements Runnable, TableControllerObserver {
 	
 	boolean firstBetPlaced = false;
 	
+	boolean bettingLocked = false;
+	
 
 	public GameController() {
 
@@ -88,10 +90,16 @@ public class GameController implements Runnable, TableControllerObserver {
 	        	break;
 	        
 	        case BET10:
-	        	handleBet(10);
+	        	if(!bettingLocked) {
+	        		handleBet(10);
+	        	}
+	        
 	        	break;
 	        case BET50:
-	        	handleBet(50);
+	        	if(!bettingLocked) {
+	        		handleBet(50);
+	        	}
+	        	
 	        	break;
 	        
 	        case CLEARBET:
@@ -100,6 +108,7 @@ public class GameController implements Runnable, TableControllerObserver {
 	        	
 	        case PLACEBET:
 	        	handlePlaceBet();
+	        	System.out.println("After placing bet");
 	        	break;
 	        
 	        default:
@@ -108,16 +117,16 @@ public class GameController implements Runnable, TableControllerObserver {
 	        } 
 	    });
 		
+		
 		tableController.addObserver(this);
 		dealerHandValueMessage.addObserver(gameWindow.getGui());
 		playerHandValueMessage.addObserver(gameWindow.getGui());
 		playerBankMessage.addObserver(gameWindow.getGui());
 		betPotMessage.addObserver(gameWindow.getGui());
 		menuMessage.addObserver(gameWindow.getGui());
-		
-		
 		gameWindow.getGui().addGuiObserver(gameWindow);
 		stateController.addObserver(gameWindow);
+		System.out.println("After adding observers");
 		
 	}
 	
@@ -144,6 +153,7 @@ public class GameController implements Runnable, TableControllerObserver {
 //	}
 
 	public void updateMenuMessage(String message) {
+		System.out.println("updating menu message");
 		menuMessage.setMessage(message);
 	}
 	
@@ -163,10 +173,10 @@ public class GameController implements Runnable, TableControllerObserver {
 			if(tableController.dealerHasBlackjack()) {
 				dealerHandValueMessage.setMessage(String.valueOf(tableController.getComputerDealer().getHand().getHandValue()));
 			} else {
+				System.out.println("updating dealer message and showing only one card");
 				dealerHandValueMessage.setMessage(String.valueOf(tableController.getComputerDealer().getHand().getValueOfDealerFirstCard()));	
 			}
 		} else {
-			System.out.println("printing hand value");
 			dealerHandValueMessage.setMessage(String.valueOf(tableController.getComputerDealer().getHand().getHandValue()));
 		}
 	}
@@ -181,6 +191,7 @@ public class GameController implements Runnable, TableControllerObserver {
 		switch(actionType) {
 		//player got blackjack on draw
 		case 1:
+	
 			updateMenuMessage("You won with blackjack on draw. Place a new bet to play again");
 			tableController.getHumanPlayer().getPlayerBank().increaseBank(tableController.getBetPot().getSizeOfPot()*2);
 			updatePlayerBankMessage();
@@ -188,11 +199,14 @@ public class GameController implements Runnable, TableControllerObserver {
 			
 		//dealer got blackjack on draw
 		case 2:
+			System.out.println("in case 2");
 			updateMenuMessage("Dealer won with blackjack on draw. Place a new bet to play again");
+			System.out.println("After updating menu message");
 			break;
 		
 		//dealer and player got blackjack on draw
 		case 3:
+		
 			updateMenuMessage("You both got blackjack. Bet returned. Place a new bet to play again");
 			tableController.getHumanPlayer().getPlayerBank().increaseBank(tableController.getBetPot().getSizeOfPot());
 			updatePlayerBankMessage();
@@ -200,6 +214,7 @@ public class GameController implements Runnable, TableControllerObserver {
 			break;
 		//player won
 		case 4:
+			
 			tableController.getHumanPlayer().getPlayerBank().increaseBank(tableController.getBetPot().getSizeOfPot()*2);
 			updateMenuMessage("You won. Place a new bet to play again");
 			updatePlayerBankMessage();
@@ -207,30 +222,49 @@ public class GameController implements Runnable, TableControllerObserver {
 		
 		//dealer won
 		case 5:
-			
-			((ComputerDealer)tableController.getComputerDealer()).setAllCardsFaceUp();
-			updateDealerHandValueMessage();
-    		gameWindow.getGui().updateRenderableCards(tableController.getComputerDealer().getHand().getCardsInHand());
+    	
     		gameWindow.getGui().setDrawCards(true);  
 			updateMenuMessage("Dealer won. Place a new bet to play again");
 			break;
 		
 		//dealer and player have same value cards
 		case 6:
-			System.out.println("bet pot is: " + tableController.getBetPot().getSizeOfPot());
+			
 			tableController.getHumanPlayer().getPlayerBank().increaseBank(tableController.getBetPot().getSizeOfPot());
 			updateMenuMessage("You drew with the dealer. Bet returned. Place a new bet to play again");
 			updatePlayerBankMessage();
 			break;
 		case 7:
+			((ComputerDealer)tableController.getComputerDealer()).setAllCardsFaceUp();
 			updateDealerHandValueMessage();
 			break;
 		}
-		tableController.setGameInProgress(false);
-		tableController.getBetPot().clearPot();
+		
+		System.out.println("out of case switch");
+		
+		((ComputerDealer)tableController.getComputerDealer()).setAllCardsFaceUp();
+		System.out.println("after setting all dealer cards face up");
+		
+		gameWindow.getGui().setDrawCards(true);  
+		gameWindow.getGui().updateRenderableCards(tableController.getComputerDealer().getHand().getCardsInHand());
+    	gameWindow.getGui().updateRenderableCards(tableController.getHumanPlayer().getHand().getCardsInHand());
+    	System.out.println("after rendering cards");
+		
+		updateDealerHandValueMessage();
+		System.out.println("After updating dealer hand value message");
+		
+		
+		
+    	
+    	
+    	
+    	
+    	tableController.getBetPot().clearPot();
     	updateBetPotMessage(tableController.getBetPot().getPotString());
-		render();
+    	System.out.println("After clearing bet pot");
+    	
 		softResetGame();
+		System.out.println("After softReset");
 	}
 	
 	public void handleHit() {
@@ -261,13 +295,16 @@ public class GameController implements Runnable, TableControllerObserver {
 		if(!firstBetPlaced) {
     		updateMenuMessage("You have not placed a bet yet. " + menuMessage.getDefaultStartMessage());
     	} else {
+    		((ComputerDealer)tableController.getComputerDealer()).setSecondCardHidden(false);
     		tableController.progressDealer(ButtonAction.STAND);
     		 	
     		}
 	}
 	
 	public void handlePlaceBet() {
+		
 		if(!tableController.isGameInProgress()) {
+			bettingLocked = true;
     		if(tableController.getBetPot().getSizeOfPot() > 0) {
     			gameWindow.getGui().init();
         		tableController.setGameInProgress(true);
@@ -286,12 +323,13 @@ public class GameController implements Runnable, TableControllerObserver {
         		updatePlayerHandValueMessage();
         		updateDealerHandValueMessage();
         		
-        		
-        		
-        		gameWindow.getGui().setDrawCards(true);
         		tableController.checkIfBlackjack();
+        		System.out.println("After checking blackjack");
+        		gameWindow.getGui().setDrawCards(true);
+        		
         	} else {
         		updateMenuMessage("Cannot place bet of $0 - increase bet size and try again.");
+        		bettingLocked = false;
         	}
     	}
 	}
@@ -331,10 +369,13 @@ public class GameController implements Runnable, TableControllerObserver {
 	}
 	
 	public void softResetGame() {
-		((ComputerDealer)tableController.getComputerDealer()).setSecondCardHidden();
+		
+		((ComputerDealer)tableController.getComputerDealer()).setSecondCardHidden(true);
 		tableController.getHumanPlayer().getHand().clear();
 		tableController.getComputerDealer().getHand().clear();
 		tableController.setGameInProgress(false);
+		bettingLocked = false;
+		
 		//gameWindow.getGui().init();	
 	}
 }

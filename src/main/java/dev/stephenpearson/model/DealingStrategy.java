@@ -5,6 +5,7 @@ import java.util.Stack;
 
 public interface DealingStrategy  {
 	
+	boolean debugBlackJack = true;
 	
 	default void dealCardTo(PlayerEntity playerEntity, Stack<Card> gameStack, String upOrDown) {
 		
@@ -52,9 +53,7 @@ public interface DealingStrategy  {
 	default boolean dealerHasBlackjack(List<PlayerEntity> playerEntities) {
 	    for (PlayerEntity playerEntity : playerEntities) {
 	        if (playerEntity instanceof ComputerDealer) {
-	         
 	            if (playerEntity.getHand().getHandValue() == 21 && playerEntity.getHand().getCardsInHand().size() == 2) {
-	                System.out.println("Dealer Has Blackjack");
 	            	return true;
 	            }
 	        }
@@ -91,41 +90,79 @@ public interface DealingStrategy  {
 		
 		int xCounter = 50;
 		int yCounter = 80;
-		for(PlayerEntity pi : playerEntities) {
+		
+		if(debugBlackJack) {
 			
-			if(pi instanceof ComputerDealer) {
-				for(int i = 0; i < 2; i++) {
-					if(i == 1) {
-						Card c = gameStack.pop();
-						c.setCardFaceDown(true);
-						
-						c.setXY(pi.getHand().getNextCardZone());
-						
-						pi.getHand().addCardToHand(c);
-						System.out.println("Adding to dealer hand face down: " + c.getCardString());
-						xCounter = 50;
-						yCounter = 500;
-					} else {
-						Card c = gameStack.pop();
-						c.setXY(pi.getHand().getNextCardZone());
-						System.out.println("Adding to dealer hand: " + c.getCardString());
-						pi.getHand().addCardToHand(c);
-					}
-				}
-				
-			} else {
-				for(int i = 0; i < 2; i++) {
-				
-					Card c = gameStack.pop();
+			
+			
+		//dealer wins blackjack
+			System.out.println("debugging");
+			for(PlayerEntity pi : playerEntities) {
+				if(pi instanceof ComputerDealer) {
+					Card a = new Card(Card.Suit.HEARTS, Card.Rank.ACE);
+					a.setXY(pi.getHand().getNextCardZone());
+					pi.getHand().addCardToHand(a);
+					Card b = new Card(Card.Suit.HEARTS, Card.Rank.QUEEN);
+					b.setXY(pi.getHand().getNextCardZone());
+					b.setCardFaceDown(true);
+					pi.getHand().addCardToHand(b);
+					
+				} else {
+					Card c = new Card(Card.Suit.HEARTS, Card.Rank.SEVEN);
 					c.setXY(pi.getHand().getNextCardZone());
 					pi.getHand().addCardToHand(c);
-					System.out.println("Adding to player hand: " + c.getCardString());
+					
+					Card d = new Card(Card.Suit.HEARTS, Card.Rank.SEVEN);
+					d.setXY(pi.getHand().getNextCardZone());
+					pi.getHand().addCardToHand(d);
+				}
+			}
+		} 
+		
+		
+		
+		
+		
+		else {
+			for(PlayerEntity pi : playerEntities) {
+				
+				if(pi instanceof ComputerDealer) {
+					for(int i = 0; i < 2; i++) {
+						if(i == 1) {
+							Card c = gameStack.pop();
+							c.setCardFaceDown(true);
+							
+							c.setXY(pi.getHand().getNextCardZone());
+							
+							pi.getHand().addCardToHand(c);
+							System.out.println("Adding to dealer hand face down: " + c.getCardString());
+							xCounter = 50;
+							yCounter = 500;
+						} else {
+							Card c = gameStack.pop();
+							c.setXY(pi.getHand().getNextCardZone());
+							System.out.println("Adding to dealer hand: " + c.getCardString());
+							pi.getHand().addCardToHand(c);
+						}
+					}
+					
+				} else {
+					for(int i = 0; i < 2; i++) {
+					
+						Card c = gameStack.pop();
+						c.setXY(pi.getHand().getNextCardZone());
+						pi.getHand().addCardToHand(c);
+						System.out.println("Adding to player hand: " + c.getCardString());
+					}
+					
 				}
 				
-			}
-			
-			
-			}
+				
+				}
+		}
+		
+		
+		
 		
 		}
 		
