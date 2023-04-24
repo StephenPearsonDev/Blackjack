@@ -23,4 +23,6 @@ This is a simple Blackjack game built in Java. The user can place bets, hit, sta
 - The more you win the more you earn. :dollar: :dollar: :dollar:
 - If you lose all your money, hit "Reset" to start again. :mage:
 
+![](https://github.com/StephenPearsonDev/Blackjack/blob/main/Animation.gif)
+
 Enjoy playing Blackjack! :tada:
