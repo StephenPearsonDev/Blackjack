@@ -1,13 +1,9 @@
 package dev.stephenpearson.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import dev.stephenpearson.model.Card;
 import dev.stephenpearson.model.ComputerDealer;
-import dev.stephenpearson.model.HandValueMessageObserver;
 import dev.stephenpearson.model.HumanPlayer;
 import dev.stephenpearson.model.MenuMessage;
 import dev.stephenpearson.model.PlayerEntity;
@@ -113,10 +109,12 @@ public class TableController {
 		switch(buttonAction) {
 		
 		case HIT:
+			checkIfStackEmpty();
 			((ComputerDealer)computerDealer).playerHit(playerEntities, deckController.getMainGameStack());
 			break;
 			
 		case STAND:
+			checkIfStackEmpty();
 			playOutDealerSolo();
 			break;
 			
@@ -150,8 +148,15 @@ public class TableController {
 		TableController.betPlaced = betPlaced;
 	}
 	
+	public void checkIfStackEmpty() {
+		if(deckController.getGameStack().isEmpty()) {
+			deckController.buildDecks();
+		}
+	}
+	
 	//Dealer methods
 		public void wakeDealer() {
+			checkIfStackEmpty();
 			((ComputerDealer)computerDealer).dealFirstCards(playerEntities, deckController.getMainGameStack());
 		
 		}
@@ -162,7 +167,7 @@ public class TableController {
 		
 		public void playOutDealerSolo() {
 		
-
+			checkIfStackEmpty();
 			while (true) {
 		        int dealerHandValue = computerDealer.getHand().getHandValue();
 		        System.out.println("dealer hand value is: " + dealerHandValue);
