@@ -1,5 +1,4 @@
 # :black_joker: Blackjack Game :black_joker:
-# :spades: :hearts: :clubs: :diamonds:
 
 This is a simple Blackjack game built in Java. The user can place bets, hit, stand, and interact with the dealer. The game features a graphical user interface for an enjoyable gaming experience.
 
@@ -25,5 +24,3 @@ This is a simple Blackjack game built in Java. The user can place bets, hit, sta
 - If you lose all your money, hit "Reset" to start again. :mage:
 
 Enjoy playing Blackjack! :tada:
-
-:moneybag: :game_die: :moneybag: :game_die:
